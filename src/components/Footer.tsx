@@ -90,6 +90,11 @@ export const Footer = () => {
                   Contributors
                 </Link>
               </li>
+              <li>
+                <Link to="/submission" className="text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 transition-colors">
+                  Submission
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -130,4 +135,4 @@ export const Footer = () => {
       </div>
     </footer>
   );
-}; 
+};
