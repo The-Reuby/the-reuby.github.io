@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ignore public files for now because we need to host it on a server
+public
+# ignore reuby3.pdf
+reuby3.pdf

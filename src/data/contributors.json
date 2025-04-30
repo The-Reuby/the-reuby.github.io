@@ -1,0 +1,85 @@
+{
+  "editorial": [
+    {
+      "name": "Daniel the Great",
+      "role": "Editor-in-Chief",
+      "image": "https://res.cloudinary.com/dwccfildc/c_limit,f_auto,w_1140/v1700055809/prod/aef9c35ea0fa07c975169cd6dd1e19b0.jpg"
+    },
+    {
+      "name": "Jayroop Ramesh",
+      "role": "Editor",
+      "image": null
+    },
+    {
+      "name": "Puyu Wang",
+      "role": "IT and Maintainer of This Website",
+      "image": "https://puyuwang.org/image/profile.png"
+    },
+    {
+      "name": "Eliza Rayner",
+      "role": "Creative director and Graphic Design",
+      "image": null
+    },
+    {
+      "name": "Katherine Faulkner",
+      "role": "Outreach",
+      "image": null
+    },
+    {
+      "name": "Hannah Cole",
+      "role": "Editor",
+      "image": null
+    },
+    {
+      "name": "Amaani Khan",
+      "role": "Editor",
+      "image": null
+    },
+    {
+      "name": "Shreya Ganguli",
+      "role": "Editor",
+      "image": null
+    },
+    {
+      "name": "Prenika Anand",
+      "role": "Editor",
+      "image": "https://www.ageing.ox.ac.uk/images/_cache/Prenika_square_md.jpg"
+    }
+  ],
+  "advisors": [
+    {
+      "name": "Scrumble",
+      "department": "The Welfare Dog",
+      "image": "https://reuben.ox.ac.uk/sites/default/files/styles/listing_tile_text_displayed_image/public/parkscollege/images/person/scrumbles.jpg?itok=ez0i3PGd"
+    },
+    {
+      "name": "Prof. Dinosaur",
+      "department": "Department of Dining with Dinosaurs",
+      "image": "/images/people/dinosaur.png"
+    }
+  ],
+  "past": [
+    {
+      "name": "Prenika Anand",
+      "role": "Editor (2022-2023)",
+      "image": "https://www.ageing.ox.ac.uk/images/_cache/Prenika_square_md.jpg"
+    },
+    {
+      "name": "Songqi Li",
+      "role": "Social Media (2023-2024)",
+      "image": null
+    }
+    
+  ],
+  "contributors": [
+    "Katherine Faulkner",
+    "Alyina Rizwan Hashmi",
+    "Valley Lopez",
+    "Mauricio Reyna-Jeldes",
+    "Jayroop Ramesh",
+    "Jennifer Rai",
+    "Daniel Revach",
+    "Puyu Wang",
+    "Prenika Anand"
+  ]
+} 
