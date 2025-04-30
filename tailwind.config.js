@@ -9,17 +9,17 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#a4292e',  // medium wine red
+          600: '#8c2130',  // darker wine red
+          700: '#771825',  // deep wine red
+          800: '#641320',  // very deep wine
+          900: '#4c0519',  // darkest wine
+          950: '#350512',
         },
       },
       animation: {

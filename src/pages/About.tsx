@@ -1,16 +1,29 @@
+import { Link } from 'react-router-dom';
+
 export const About = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <header className="mb-16 text-center">
-          <div className="inline-block mb-6 p-2 rounded-full bg-primary-100 dark:bg-primary-900">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="flex justify-center mb-8">
+            <Link to="/">
+              <div className="p-3 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md hover:scale-105">
+                <img 
+                  src="/images/reuby_logo.jpg" 
+                  alt="Reuby Logo" 
+                  className="h-32 object-contain rounded-md" 
+                />
+              </div>
+            </Link>
           </div>
-          <h1 className="text-5xl font-extrabold text-primary-700 dark:text-primary-300 mb-4">About Reuby</h1>
+            <div className="flex flex-col items-center mb-6">
+            
+            <h1 className="text-5xl font-extrabold text-primary-700 dark:text-primary-300">
+              Reuby Magazine
+            </h1>
+            </div>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Learn about our student-led magazine and its mission
+            Student-led magazine at Reuben College
           </p>
           <div className="mt-8 h-1 w-24 bg-primary-500 mx-auto rounded-full"></div>
         </header>
