@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Issue, IssueMeta } from '../types';
+import { getAssetPath } from '../utils/pathUtils';
 
 export const useIssue = (initialSlug?: string) => {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -11,7 +12,7 @@ export const useIssue = (initialSlug?: string) => {
   useEffect(() => {
     const fetchIssues = async () => {
       try {
-        const response = await fetch('/data/issues.json');
+        const response = await fetch(getAssetPath('/data/issues.json'));
         if (!response.ok) {
           throw new Error('Failed to fetch issues');
         }
@@ -41,7 +42,7 @@ export const useIssue = (initialSlug?: string) => {
 
       try {
         setLoading(true);
-        const response = await fetch(`/data/${currentIssue.slug}.json`);
+        const response = await fetch(getAssetPath(`/data/${currentIssue.slug}.json`));
         if (!response.ok) {
           throw new Error(`Failed to fetch issue metadata for ${currentIssue.slug}`);
         }

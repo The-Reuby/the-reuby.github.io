@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { getAssetPath } from '../utils/pathUtils';
 
 interface Guideline {
   id: string;
@@ -28,7 +29,7 @@ export const Submission = () => {
       try {
         setLoading(true);
         const timestamp = new Date().getTime();
-        const response = await fetch(`/data/submission/guidelines.json?t=${timestamp}`);
+        const response = await fetch(getAssetPath(`/data/submission/guidelines.json?t=${timestamp}`));
         if (!response.ok) {
           throw new Error('Failed to fetch guidelines data');
         }
@@ -51,7 +52,7 @@ export const Submission = () => {
   // Load the markdown content for a specific guideline file
   const loadGuidelineContent = async (filename: string) => {
     try {
-      const response = await fetch(`/data/submission/${filename}?t=${new Date().getTime()}`);
+      const response = await fetch(getAssetPath(`/data/submission/${filename}?t=${new Date().getTime()}`));
       if (!response.ok) {
         throw new Error('Failed to fetch guideline content');
       }

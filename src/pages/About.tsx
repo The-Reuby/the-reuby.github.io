@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getAssetPath } from '../utils/pathUtils';
 
 export const About = () => {
   return (
@@ -9,7 +10,7 @@ export const About = () => {
             <Link to="/">
               <div className="p-3 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md hover:scale-105">
                 <img 
-                  src="/images/reuby_logo.jpg" 
+                  src={getAssetPath("/images/reuby_logo.jpg")}
                   alt="Reuby Logo" 
                   className="h-32 object-contain rounded-md" 
                 />
@@ -31,7 +32,7 @@ export const About = () => {
         <div className="prose dark:prose-invert lg:prose-lg prose-slate mx-auto">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
             <img 
-              src="/images/about-cover.png" 
+              src={getAssetPath("/images/about-cover.png")}
               alt="Magazine team" 
               className="w-full h-120 object-cover object-center"
             />

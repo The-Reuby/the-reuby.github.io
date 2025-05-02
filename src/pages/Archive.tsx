@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Issue } from '../types';
 import { IssueCard } from '../components/IssueCard';
 import { EmptyState } from '../components/EmptyState';
+import { getAssetPath } from '../utils/pathUtils';
 
 export const Archive = () => {
   const [archivedIssues, setArchivedIssues] = useState<Issue[]>([]);
@@ -19,7 +20,7 @@ export const Archive = () => {
         setLoading(true);
         // Add cache-busting parameter to prevent caching
         const timestamp = new Date().getTime();
-        const response = await fetch(`/data/archived-issues.json?t=${timestamp}`);
+        const response = await fetch(getAssetPath(`/data/archived-issues.json?t=${timestamp}`));
         if (!response.ok) {
           throw new Error('Failed to fetch archived issues');
         }

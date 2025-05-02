@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { getAssetPath } from '../utils/pathUtils';
 
 interface PageViewerProps {
   currentIssue: {
@@ -427,9 +428,9 @@ export const PageViewer = ({
     
     // Special case for cover page
     if (pageNum === 0) {
-      return `${currentIssue.folder}/000.png`;
+      return getAssetPath(`${currentIssue.folder}/000.png`);
     }
-    return `${currentIssue.folder}/${formatPageNumber(pageNum)}.png`;
+    return getAssetPath(`${currentIssue.folder}/${formatPageNumber(pageNum)}.png`);
   };
 
   // Generate pages for both single and double page view

@@ -4,6 +4,7 @@ import { Issue, Article, IssueMeta } from '../types';
 import { PageViewer } from '../components/PageViewer';
 import { TableOfContents } from '../components/TableOfContents';
 import { Navbar } from '../components/Navbar';
+import { getAssetPath } from '../utils/pathUtils';
 
 export const Reader = () => {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null);
@@ -49,7 +50,7 @@ export const Reader = () => {
       
       try {
         setLoading(true);
-        const response = await fetch('/data/issues.json');
+        const response = await fetch(getAssetPath('/data/issues.json'));
         if (!response.ok) {
           throw new Error('Failed to fetch issues');
         }
@@ -66,11 +67,11 @@ export const Reader = () => {
         // Fetch articles metadata for the issue
         try {
           // First try to fetch from /data/{issue.slug}.json (for reubyte format)
-          let metaResponse = await fetch(`/data/${issue.slug}.json`);
+          let metaResponse = await fetch(getAssetPath(`/data/${issue.slug}.json`));
           
           // If not found, try the default location /data/{issue.slug}/meta.json
           if (!metaResponse.ok) {
-            metaResponse = await fetch(`/data/${issue.slug}/meta.json`);
+            metaResponse = await fetch(getAssetPath(`/data/${issue.slug}/meta.json`));
           }
           
           if (!metaResponse.ok) {

@@ -1,4 +1,5 @@
 import { Issue } from '../types';
+import { getAssetPath } from '../utils/pathUtils';
 
 interface IssueCardProps {
   issue: Issue;
@@ -13,7 +14,7 @@ export const IssueCard = ({ issue, onClick }: IssueCardProps) => {
   });
 
   // Generate the path to the cover image (000.png)
-  const coverImagePath = `${issue.folder}000.png`;
+  const coverImagePath = getAssetPath(`${issue.folder}000.png`);
 
   return (
     <div 

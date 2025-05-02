@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Issue } from '../types';
 import { IssueCard } from '../components/IssueCard';
 import { EmptyState } from '../components/EmptyState';
+import { getAssetPath } from '../utils/pathUtils';
 
 export const Home = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -20,7 +21,7 @@ export const Home = () => {
         setLoading(true);
         // Add cache-busting parameter to prevent caching
         const timestamp = new Date().getTime();
-        const response = await fetch(`/data/issues.json?t=${timestamp}`);
+        const response = await fetch(getAssetPath(`/data/issues.json?t=${timestamp}`));
         if (!response.ok) {
           throw new Error('Failed to fetch issues');
         }

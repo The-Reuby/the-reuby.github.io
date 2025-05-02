@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useDarkMode } from '../hooks/useDarkMode';
+import { getAssetPath } from '../utils/pathUtils';
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,7 +17,7 @@ export const Navbar = () => {
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
                 <img 
-                  src="/images/reuby_logo.jpg" 
+                  src={getAssetPath("/images/reuby_logo.jpg")}
                   alt="Reuby Logo" 
                   className="h-12 w-auto mr-2" 
                 />
