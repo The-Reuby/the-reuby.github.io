@@ -24,6 +24,6 @@ dist-ssr
 *.sw?
 
 # ignore public files for now because we need to host it on a server
-public
+# public
 # ignore reuby3.pdf
 reuby3.pdf
