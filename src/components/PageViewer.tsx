@@ -26,6 +26,7 @@ export const PageViewer = ({
   );
   const [isScreenWideEnough, setIsScreenWideEnough] = useState(false);
   const [showTooNarrowMessage, setShowTooNarrowMessage] = useState(false);
+  const [tooNarrowReason, setTooNarrowReason] = useState('');
   const pageContainerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isScrollingRef = useRef(false);
@@ -333,53 +334,16 @@ export const PageViewer = ({
     };
   }, [currentIssue, onPageChange, viewMode, currentPage]);
 
-  // Navigate to specific page
-  const goToPage = (pageNum: number) => {
-    if (!pageContainerRef.current || !currentIssue) return;
-    
-    // Set flag to prevent concurrent navigation
-    if (navigatingRef.current) return;
-    navigatingRef.current = true;
-    
-    console.log(`Navigation requested to page ${pageNum} in ${viewMode} mode`);
-    
-    // Update the currentPage state
-    setCurrentPage(pageNum);
-    
-    // In double page mode, we want to pause briefly to ensure all elements are rendered
-    // and can be found by the scrollToPage function
-    if (viewMode === 'double') {
-      // Short delay before scrolling in double page mode to ensure elements are ready
-      setTimeout(() => {
-        scrollToPage(pageNum);
-        onPageChange?.(pageNum);
-        
-        // Reset navigation flag after a delay
-        setTimeout(() => {
-          navigatingRef.current = false;
-        }, 500);
-      }, 100);
-    } else {
-      // In single page mode, we can navigate immediately
-      scrollToPage(pageNum);
-      onPageChange?.(pageNum);
-      
-      // Reset navigation flag after a delay
-      setTimeout(() => {
-        navigatingRef.current = false;
-      }, 500);
-    }
-  };
-
   // Toggle between single and double page view
   const toggleViewMode = () => {
     // Don't allow double page view when screen is too narrow or TOC is hidden
     if (!isScreenWideEnough || !isTocVisible) {
-      const message = !isScreenWideEnough 
+      const tooNarrowReason = !isScreenWideEnough 
         ? "Two-page view is only available on larger screens" 
         : "Two-page view is only available when the table of contents is open";
         
       setShowTooNarrowMessage(true);
+      setTooNarrowReason(tooNarrowReason);
       
       // Hide the message after 3 seconds
       if (messageTimeoutRef.current) {
@@ -660,9 +624,7 @@ export const PageViewer = ({
       {/* Message for when screen is too narrow or TOC is hidden */}
       {showTooNarrowMessage && (
         <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm z-[35] animate-fade-in">
-          {!isScreenWideEnough 
-            ? "Two-page view is only available on larger screens" 
-            : "Two-page view is only available when the table of contents is open"}
+          {tooNarrowReason}
         </div>
       )}
       

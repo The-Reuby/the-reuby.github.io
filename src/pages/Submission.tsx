@@ -171,10 +171,16 @@ export const Submission = () => {
                     blockquote: ({node, ...props}) => (
                       <blockquote className="border-l-4 border-primary-300 dark:border-primary-700 pl-4 italic my-4" {...props} />
                     ),
-                    code: ({node, inline, ...props}) => 
-                      inline 
-                        ? <code className="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded text-sm" {...props} />
-                        : <code className="block bg-slate-100 dark:bg-slate-700 p-4 rounded-lg overflow-x-auto text-sm" {...props} />,
+                    code: ({node, className, children, ...props}) => {
+                      const isInline = !className
+                      return isInline ? 
+                        <code className="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded text-sm" {...props}>
+                          {children}
+                        </code> : 
+                        <code className="block bg-slate-100 dark:bg-slate-700 p-4 rounded-lg overflow-x-auto text-sm" {...props}>
+                          {children}
+                        </code>
+                    },
                   }}
                 >
                   {markdownContent}
