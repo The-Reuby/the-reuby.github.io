@@ -58,6 +58,7 @@ export const Navbar = () => {
           </div>
           
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            {/* Search functionality commented out for now
             <div className="relative">
               <input
                 type="text"
@@ -70,6 +71,7 @@ export const Navbar = () => {
                 </svg>
               </div>
             </div>
+            */}
             
             <button
               onClick={toggleDarkMode}
@@ -148,6 +150,7 @@ export const Navbar = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-slate-200 dark:border-slate-700">
           <div className="flex items-center px-4">
+            {/* Mobile search functionality commented out for now
             <div className="relative w-full">
               <input
                 type="text"
@@ -160,6 +163,7 @@ export const Navbar = () => {
                 </svg>
               </div>
             </div>
+            */}
             <button
               onClick={toggleDarkMode}
               className="ml-4 p-2 rounded-md text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-300 focus:outline-none"

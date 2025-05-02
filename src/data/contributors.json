@@ -1,7 +1,7 @@
 {
   "editorial": [
     {
-      "name": "Daniel the Great",
+      "name": "Daniel Revachat",
       "role": "Editor-in-Chief",
       "image": "https://res.cloudinary.com/dwccfildc/c_limit,f_auto,w_1140/v1700055809/prod/aef9c35ea0fa07c975169cd6dd1e19b0.jpg"
     },
@@ -47,11 +47,7 @@
     }
   ],
   "advisors": [
-    {
-      "name": "Scrumble",
-      "department": "The Welfare Dog",
-      "image": "https://reuben.ox.ac.uk/sites/default/files/styles/listing_tile_text_displayed_image/public/parkscollege/images/person/scrumbles.jpg?itok=ez0i3PGd"
-    },
+   
     {
       "name": "Prof. Dinosaur",
       "department": "Department of Dining with Dinosaurs",
