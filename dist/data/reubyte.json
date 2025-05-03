@@ -1,0 +1,71 @@
+{
+  "slug": "reubyte",
+  "articles": [
+    {
+      "id": "announcements",
+      "title": "Announcements",
+      "author": "The Editorial Team",
+      "pages": [3]
+    },
+    {
+      "id": "letter-from-the-editors",
+      "title": "Letter From The Editors",
+      "author": "The Editorial Team",
+      "pages": [4]
+    },
+    {
+      "id": "a-cage-in-search-of-a-bird",
+      "title": "A Cage In Search Of A Bird",
+      "author": "Katherine Faulkner",
+      "pages": [7]
+    },
+    {
+      "id": "confessions-of-a-farndonite",
+      "title": "Confessions Of A Farndonite",
+      "author": "Alyina Rizwan Hashmi",
+      "pages": [9]
+    },
+    {
+      "id": "terra-facta",
+      "title": "Terra Facta",
+      "author": "Valley Lopez",
+      "pages": [13]
+    },
+    {
+      "id": "primaeterna",
+      "title": "Primaeterna",
+      "author": "Mauricio Reyna-Jeldes",
+      "pages": [18]
+    },
+    {
+      "id": "hesitations",
+      "title": "Hesitations",
+      "author": "Jayroop Ramesh",
+      "pages": [18]
+    },
+    {
+      "id": "a-metal-prison",
+      "title": "A Metal Prison",
+      "author": "Jennifer Rai",
+      "pages": [19]
+    },
+    {
+      "id": "why-i-didnt-shoot-atallah",
+      "title": "Why I Didn’t Shoot Atalláh",
+      "author": "Daniel Revach",
+      "pages": [21]
+    },
+    {
+      "id": "meet-the-team",
+      "title": "Meet The Team",
+      "author": "The Editorial Team",
+      "pages": [25]
+    },
+    {
+      "id": "puzzles",
+      "title": "Puzzles",
+      "author": "The Editorial Team",
+      "pages": [27]
+    }
+  ]
+}
