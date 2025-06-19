@@ -1,5 +1,7 @@
 # Submission Guidelines for The 'Instinction'
 
+# ✅ The Reuby Issue 3 - Instinction has been published on June 19th, 2025! 
+
 ## Theme
 The upcoming issue’s theme is ‘Instinction’. Read our blurb for more details, but we want
 to see how you choose to interpret this psuedo-word.
@@ -7,6 +9,7 @@ to see how you choose to interpret this psuedo-word.
 ## Deadline
 - **Submission deadline**: March 15th
 - Submissions will not be accepted after this date
+
 
 ## Submission Types and Requirements
 

@@ -1,0 +1,83 @@
+{
+  "slug": "reuby3",
+  "articles": [
+    {
+      "id": "foreword",
+      "title": "Foreword",
+      "author": "Lauren Boltz",
+      "pages": [2]
+    },
+    {
+      "id": "humans-of-reuben-alumni-edition",
+      "title": "Humans of Reuben: Alumni Edition",
+      "author": "Prenika Anand and Jayroop Ramesh",
+      "pages": [3]
+    },
+    {
+      "id": "madam-scrumble-pawson-interview-with-the-reuby",
+      "title": "Madam Scrumble Pawson: Interview with The Reuby",
+      "author": "Amaani Khan, Eloise Bishop, Orla Watson and Katherine Faulkner",
+      "pages": [8]
+    },
+    {
+      "id": "the-neglect-of-ethics-and-values-at-reuben-college",
+      "title": "The Neglect of Ethics and Values at Reuben College",
+      "author": "Eloise Bishop",
+      "pages": [11]
+    },
+    {
+      "id": "cop29-delivering-on-climate-commitments-that-protect-people-and-planet",
+      "title": "COP29: Delivering on Climate Commitments that Protect People and Planet",
+      "author": "Omnia el Omrani",
+      "pages": [13]
+    },
+    {
+      "id": "english-archaeology-and-archaeologists-in-india-what-happened-after-they-left",
+      "title": "English Archaeology and Archaeologists in India: what happened after they left?",
+      "author": "Ajay Yadav",
+      "pages": [15]
+    },
+    {
+      "id": "artificial-artists-what-it-takes-and-means-for-ai-to-be-capable-of-art",
+      "title": "Artificial Artists? What it takes – and means – for AI to be capable of art",
+      "author": "Daniel Revach",
+      "pages": [21]
+    },
+    {
+      "id": "instinction-print-project",
+      "title": "Instinction Print Project",
+      "author": "Reuben Art Society",
+      "pages": [25]
+    },
+    {
+      "id": "poetry-whispers",
+      "title": "Poetry Whispers",
+      "author": "Ilya Kaminsky, Daniel Revach, Gal Rubin, Aashna Uppal, Jayroop Ramesh, JC Niala and Watu Wamae",
+      "pages": [35]
+    },
+    {
+      "id": "poetry-corner",
+      "title": "Poetry Corner",
+      "author": "Denise Reyna-Jeldes and Jayroop Ramesh",
+      "pages": [41]
+    },
+    {
+      "id": "short-story-corner",
+      "title": "Short Story Corner",
+      "author": "Geneviève Helleringer and Katherine Faulkner",
+      "pages": [43]
+    },
+    {
+      "id": "the-reuby-anthem",
+      "title": "The Reuby Anthem",
+      "author": "Puyu Wang",
+      "pages": [47]
+    },
+    {
+      "id": "meet-the-team",
+      "title": "Meet The Team",
+      "author": "The Editorial Team",
+      "pages": [48]
+    }
+  ]
+}
