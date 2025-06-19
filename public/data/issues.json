@@ -1,5 +1,14 @@
 [
   {
+  "slug": "reuby3",
+  "name": "🆕 The Reuby Issue 3",
+  "date": "2025-06-19",
+  "oxfordTerm": "TT25",
+  "folder": "/magazines/reuby3/",
+  "pageCount": 51,
+  "editors": ["Daniel Revach", "Hannah Cole", "Eliza Rayner", "Katherine Faulkner", "Puyu Wang", "Prenika Anand","Jayroop Ramesh","Shreya Ganguli"]
+},
+  {
     "slug": "reubyte",
     "name": "Reubyte",
     "date": "2024-06-15",
@@ -7,14 +16,6 @@
     "folder": "/magazines/reubyte/",
     "pageCount": 28,
     "editors": ["Jayroop Ramesh", "Daniel Revach", "Alyina Hamshi", "Eliza Rayner", "Katherine Faulkner", "Puyu Wang", "Songqi Li"]
-  }, 
-  {
-    "slug": "reuby3",
-    "name": "🆕 The Reuby Issue 3",
-    "date": "2025-06-19",
-    "oxfordTerm": "TT25",
-    "folder": "/magazines/reuby3/",
-    "pageCount": 51,
-    "editors": ["Daniel Revach", "Hannah Cole", "Eliza Rayner", "Katherine Faulkner", "Puyu Wang", "Prenika Anand","Jayroop Ramesh","Shreya Ganguli"]
   }
+  
 ] 
