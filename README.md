@@ -83,4 +83,12 @@ The build artifacts will be stored in the `dist/` directory.
 
 ## License
 
-The source code is MIT licensed. However, the content is not.
+The source code is MIT licensed. However, the content of magazines is not.
+
+##  Magazine Content Licence
+
+The editorial content contained in the **/magazine/**, **/images/**,  **/data/** directory (including articles, poetry, photographs, artwork, page layouts, and any other creative material) is **not** distributed under the MIT License.  
+
+Unless an individual file or folder explicitly states otherwise, **all rights are reserved** by the respective authors and/or Reuby Magazine.
+
+You **may not** reproduce, modify, distribute, or create derivative works from this content without prior written permission from the copyright holder(s). 
