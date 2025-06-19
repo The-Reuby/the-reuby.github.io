@@ -83,4 +83,4 @@ The build artifacts will be stored in the `dist/` directory.
 
 ## License
 
-MIT
+The source code is MIT licensed. However, the content is not.
