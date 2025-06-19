@@ -7,7 +7,7 @@ interface IssueCardProps {
 }
 
 export const IssueCard = ({ issue, onClick }: IssueCardProps) => {
-  const date = new Date(issue.date).toLocaleDateString('en-US', {
+  const date = new Date(issue.date).toLocaleDateString('en-UK', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
