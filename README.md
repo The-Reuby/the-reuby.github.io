@@ -83,11 +83,11 @@ The build artifacts will be stored in the `dist/` directory.
 
 ## License
 
-The source code is MIT licensed. However, the content of magazines is not.
+The source code is The GNU General Public License (GPL) Licensed (GPLv3). However, the content of magazines is not.
 
 ##  Magazine Content Licence
 
-The editorial content contained in the **/magazine/**, **/images/**,  **/data/** directory (including articles, poetry, photographs, artwork, page layouts, and any other creative material) is **not** distributed under the MIT License.  
+The editorial content contained in the **/magazine/**, **/images/**,  **/data/** directory (including articles, poetry, photographs, artwork, page layouts, and any other creative material) is **not** distributed under the The GNU General Public License (GPL) License (GPLv3).  
 
 Unless an individual file or folder explicitly states otherwise, **all rights are reserved** by the respective authors and/or Reuby Magazine.
 
