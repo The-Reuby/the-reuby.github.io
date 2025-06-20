@@ -9,13 +9,13 @@
     {
       "name": "Eliza Rayner",
       "role": "Graphic Designer",
-      "image": null,
+      "image": "/images/people/eliza.png",
       "bio": "Eliza is a DPhil student on the Interdisciplinary Biosciences DTP studying the evolution of antibiotic resistance. The Reuby was one of the first things she got involved in when she joined Reuben College three years ago, and she hasn’t looked back since! Every time a new issue comes around, she really looks forward to the chance to take on a creative project and bring the amazing work of our contributors to life."
     },
     {
       "name": "Jayroop Ramesh",
       "role": "Senior Editor",
-      "image": null,
+      "image": "/images/people/jay.png",
       "bio": "Words unsaid are the window to a person’s soul. Wrongly so, perhaps, but Jay believes words of all shapes and sizes are beautiful. In these days of algorithmically generated lorem ipsums, however inspired by the collective knowledge of humanity, Jay aims to hold on to the spark of people’s innate desire to create and communicate. And that’s what The Reuby does, share the wonderful words - worry warts and all - of Reubenites!"
     },
     {
@@ -28,26 +28,26 @@
     {
       "name": "Katherine Faulkner",
       "role": "Editor and Visual Artist",
-      "image": null,
+      "image": "/images/people/katherine.jpeg",
       "bio": "Katherine is a DPhil student working at the intersection of biology and palaeontology. She likes writing and drawing, so naturally, she ended up at The Reuby. Katherine believes everyone should have a space to share their story, so make that space count!"
     },
     {
       "name": "Hannah Cole",
       "role": "Publicity officer",
-      "image": null,
+      "image": "/images/people/hannah.jpg",
       "bio": "Hannah, a once inspiring journalist turned criminologist, joined The Reuby to feel connected again to her reporting roots––though she is not a writer, but merely the face behind the Reuby Instagram. When she’s not investigating crimes, Hannah enjoys being in creative and journalistic environments. The Reuby offered the perfect opportunity to engage in a publication exploring the unique intersection of niche news, art, culture, and technology stories. Hannah probably will not leave her life of crime behind, but The Reuby makes a convincing argument for returning to journalism."
     },
   
     {
       "name": "Shreya Ganguli",
       "role": "Editor",
-      "image": null,
+      "image": "/images/people/shreya.jpg",
       "bio": "Shreya is an MSt Global and Imperial History student at Reuben College and one of the editors of The Reuby. In particular, she edits pieces on humanities-related subjects, which she especially welcomes in such a STEM-heavy environment. As Shreya is only on a 9-month programme, she leaves Reuben College and The Reuby in a couple of weeks and will immensely miss the camaraderie of the Monday evening team meetings. She has really enjoyed working with the team and writers this year and looks forward to reading future editions!"
     },
     {
       "name": "Prenika Anand",
       "role": "Editor",
-      "image": "https://www.ageing.ox.ac.uk/images/_cache/Prenika_square_md.jpg",
+      "image": "/images/people/prenika.jpg",
       "bio": "\"Addressing the 21st-century challenges for 'human'ity\"; those words are my first memories of the Reuben ethos. Humans of Reuben in The Reuby is our way of celebrating each human in that quest, and their experiences within a community they shaped and that shaped them. The alumni edition this year adds new stories to the student experience and for all alumni, a revisit to shared memories, meals, laughter, and conversations."
     }
   ],
@@ -64,7 +64,7 @@
     {
       "name": "Prenika Anand",
       "role": "Editor (2022-2023)",
-      "image": "https://www.ageing.ox.ac.uk/images/_cache/Prenika_square_md.jpg",
+      "image": "/images/people/prenika.jpg",
       "bio": ""
     },
     {
@@ -72,18 +72,39 @@
       "role": "Social Media (2023-2024)",
         "image": null,
       "bio": ""
+    },
+    {
+      "name": "Alyina Hamshi",
+      "role": "Editor (2023-2024)",
+      "image": null,
+      "bio": ""
     }
+    
     
   ],
   "contributors": [
-    "Katherine Faulkner",
+    "Aashna Uppal",
+    "Ajay Yadav",
     "Alyina Rizwan Hashmi",
-    "Valley Lopez",
-    "Mauricio Reyna-Jeldes",
-    "Jayroop Ramesh",
-    "Jennifer Rai",
+    "Amaani Khan",
     "Daniel Revach",
+    "Denise Reyna-Jeldes",
+    "Eloise Bishop",
+    "Gal Rubin",
+    "Geneviève Helleringer",
+    "Ilya Kaminsky",
+    "Jayroop Ramesh",
+    "JC Niala",
+    "Jennifer Rai",
+    "Katherine Faulkner",
+    "Lauren Boltz",
+    "Mauricio Reyna-Jeldes",
+    "Omnia el Omrani",
+    "Orla Watson",
+    "Prenika Anand",
     "Puyu Wang",
-    "Prenika Anand"
+    "Reuben Art Society",
+    "Valley Lopez",
+    "Watu Wamae"
   ]
 } 
