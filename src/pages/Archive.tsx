@@ -120,6 +120,7 @@ export const Archive = () => {
                 key={issue.slug}
                 issue={issue}
                 onClick={handleIssueClick}
+                isLatest={false}
               />
             ))}
           </div>
