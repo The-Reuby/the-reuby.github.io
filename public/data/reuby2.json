@@ -1,0 +1,59 @@
+{
+  "slug": "reuby2",
+  "articles": [
+    {
+      "id": "foreword",
+      "title": "Foreword",
+      "author": "Caroline Mawson",
+      "pages": [3]
+    },
+    {
+      "id": "ten",
+      "title": "10",
+      "author": "Mauricio Reyna Jeldes",
+      "pages": [4]
+    },
+    {
+      "id": "dreams-of-jennifer",
+      "title": "Dreams of Jennifer",
+      "author": "Anson Clark",
+      "pages": [5]
+    },
+    {
+      "id": "cassgpt",
+      "title": "CASSGPT",
+      "author": "Jayroop Ramesh",
+      "pages": [8]
+    },
+    {
+      "id": "thin-on-love-barley-and-large-language-models",
+      "title": "Thin on Love, Barley, and Large Language Models",
+      "author": "Anonymous",
+      "pages": [13]
+    },
+    {
+      "id": "artificial-intelligence-and-human-creativity",
+      "title": "Artificial Intelligence and Human Creativity",
+      "author": "Annette Rossi",
+      "pages": [17]
+    },
+    {
+      "id": "reuben-art-society",
+      "title": "Reuben Art Society",
+      "author": "Carol Sun",
+      "pages": [24]
+    },
+    {
+      "id": "humans-of-reuben",
+      "title": "Humans of Reuben",
+      "author": "Prenika Anand",
+      "pages": [33]
+    },
+    {
+      "id": "about-the-reuby-team",
+      "title": "About the Reuby Team",
+      "author": "The Reuby Team",
+      "pages": [40]
+    }
+  ]
+}

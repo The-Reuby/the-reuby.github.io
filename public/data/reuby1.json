@@ -1,0 +1,138 @@
+{
+  "slug": "reuby1",
+  "articles": [
+    {
+      "id": "foreword",
+      "title": "Foreword",
+      "author": "Lionel Tarassenko - Reuben College President",
+      "pages": [2]
+    },
+    {
+      "id": "letter-from-the-editors",
+      "title": "Letter from the Editors",
+      "author": "Daniel Revach, Rachel Kader, Elvina Crowe, Isabelle Sturt",
+      "pages": [3]
+    },
+    {
+      "id": "ellens-song",
+      "title": "Ellen’s Song",
+      "author": "Juuso Haavisto, Daniel Revach, Lars Holdijk",
+      "pages": [4]
+    },
+    {
+      "id": "the-radcam-at-night",
+      "title": "The Rad Cam at Night",
+      "author": "Danny Gold",
+      "pages": [5]
+    },
+    {
+      "id": "night-at-the-museum-of-natural-history",
+      "title": "Night at the Museum of Natural History",
+      "author": "Daniel Revach",
+      "pages": [6]
+    },
+    {
+      "id": "am-i-included",
+      "title": "Am I Included?",
+      "author": "Jannat Khan",
+      "pages": [7]
+    },
+    {
+      "id": "when-the-rubber-sole-hits-the-road",
+      "title": "When the Rubber Sole Hits the Road",
+      "author": "Ambre Bertrand",
+      "pages": [10]
+    },
+    {
+      "id": "the-reuben-test",
+      "title": "The Reuben Test",
+      "author": "Daniel Revach, Dr Saher Hasnain",
+      "pages": [11]
+    },
+    {
+      "id": "first-steps-outside-the-ivory-tower",
+      "title": "First Steps Outside the Ivory Tower",
+      "author": "Reuben PER Fellows",
+      "pages": [14]
+    },
+    {
+      "id": "this-house-would-rather-be-an-artist",
+      "title": "This House Would Rather Be an Artist",
+      "author": "Elvina Crowe",
+      "pages": [16]
+    },
+    {
+      "id": "under-the-morning-sky",
+      "title": "Under the Morning Sky",
+      "author": "Zixian Fan",
+      "pages": [18]
+    },
+    {
+      "id": "poetry-corner",
+      "title": "Poetry Corner",
+      "author": "Hung-Ju Chueh, Abdul Wahid Khan, Kaley Regner",
+      "pages": [19]
+    },
+    {
+      "id": "poetry-whispers",
+      "title": "Poetry Whispers",
+      "author": "Tabish Khair, Laura Maghetiu, Daniel Revach, Weilong Guan, Hung-Ju Chueh, Sharon Mustri, Julia Salafranca-Gomez",
+      "pages": [22]
+    },
+    {
+      "id": "endings",
+      "title": "Endings",
+      "author": "Aleksander Petrov",
+      "pages": [25]
+    },
+    {
+      "id": "a-love-letter-to-coldplay",
+      "title": "A Love Letter to Coldplay",
+      "author": "Grace Allen",
+      "pages": [27]
+    },
+    {
+      "id": "bonfire-at-wolfson",
+      "title": "Bonfire at Wolfson",
+      "author": "Hung-Ju Chueh",
+      "pages": [29]
+    },
+    {
+      "id": "the-missing-half-pain-in-females",
+      "title": "The Missing Half: Pain in Females",
+      "author": "Klara Hatinova",
+      "pages": [30]
+    },
+    {
+      "id": "the-rise-and-fall-of-a-new-ragwort",
+      "title": "The Rise and Fall of a New Ragwort",
+      "author": "Ernest T.Y. Wu",
+      "pages": [32]
+    },
+    {
+      "id": "cop26-too-hot-too-cold-not-quite-right",
+      "title": "COP26 – Too Hot, Too Cold, Not Quite Right",
+      "author": "Dr Fredi Otto",
+      "pages": [34]
+    },
+    {
+      "id": "cop26-fringe-first-time-in-glasgow",
+      "title": "COP26 Fringe – First Time in Glasgow",
+      "author": "Elvina Crowe",
+      "pages": [35]
+    },
+    {
+      "id": "the-city-in-bloom",
+      "title": "The City in Bloom",
+      "author": "Danny Gold",
+      "pages": [38]
+    },
+    {
+      "id": "meet-the-founders",
+      "title": "Meet the Founders",
+      "author": "Daniel Revach, Rachel Kader, Elvina Crowe, Isabelle Sturt",
+      "pages": [39]
+    }
+    
+  ]
+}

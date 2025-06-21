@@ -16,6 +16,24 @@
     "folder": "/magazines/reubyte/",
     "pageCount": 28,
     "editors": ["Jayroop Ramesh", "Daniel Revach", "Alyina Hamshi", "Eliza Rayner", "Katherine Faulkner", "Puyu Wang", "Songqi Li"]
+  },
+  {
+    "slug": "reuby2",
+    "name": "The Reuby Issue 2",
+    "date": "2023-11-29",
+    "oxfordTerm": "MT23",
+    "folder": "/magazines/reuby2/",
+    "pageCount": 42,
+    "editors": ["Daniel Revach", "Jayroop Ramesh", "Prenika Anand", "Eliza Rayner", "Charlotte Lenhard", "Puyu Wang", "Carol Sun"]
+  },
+  {
+    "slug": "reuby1",
+    "name": "The Reuby Issue 1",
+    "date": "2022-08-12",
+    "oxfordTerm": "TT22",
+    "folder": "/magazines/reuby1/",
+    "pageCount": 43,
+    "editors": ["Daniel Revach", "Rachel Kader", "Elvina 'Elvie' Crowe", "Isabelle 'Izzy' Sturt"]
   }
   
 ] 
