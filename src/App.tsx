@@ -6,6 +6,7 @@ import { Reader } from './pages/Reader';
 import { Archive } from './pages/Archive';
 import { Contributors } from './pages/Contributors';
 import { Submission } from './pages/Submission';
+import { Voices } from './pages/Voices';
 
 export const App = () => {
   return (
@@ -18,6 +19,7 @@ export const App = () => {
           <Route path="archive" element={<Archive />} />
           <Route path="contributors" element={<Contributors />} />
           <Route path="submission" element={<Submission />} />
+          <Route path="voices" element={<Voices />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

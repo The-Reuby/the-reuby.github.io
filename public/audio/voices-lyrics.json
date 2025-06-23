@@ -1,0 +1,36 @@
+[
+  { "time": 0, "text": "In Oxford's halls where knowledge thrives,", "section": "verse1" },
+  { "time": 9, "text": "A beacon shines, \"The Reuby\" arrives.", "section": "verse1" },
+  { "time": 16, "text": "Students' voices, vibrant and free,", "section": "verse1" },
+  { "time": 22, "text": "Crafting narratives with creativity.", "section": "verse1" },
+  
+  { "time": 28, "text": "Sing out, O Reuby, with harmonies pure,", "section": "chorus1" },
+  { "time": 33, "text": "Your pages our stories, enduring and sure.", "section": "chorus1" },
+  { "time": 39, "text": "United in purpose, our visions align,", "section": "chorus1" },
+  { "time": 45, "text": "In prose and in verse, our talents combine.", "section": "chorus1" },
+  
+  { "time": 52, "text": "From science's depths to art's vast expanse,", "section": "verse2" },
+  { "time": 58, "text": "We explore ideas, inviting all to dance.", "section": "verse2" },
+  { "time": 63, "text": "Each edition a journey, a quest to find,", "section": "verse2" },
+  { "time": 69, "text": "The intersections of heart and mind.", "section": "verse2" },
+  
+  { "time": 74, "text": "Sing out, O Reuby, with harmonies pure,", "section": "chorus2" },
+  { "time": 79, "text": "Your pages our stories, enduring and sure.", "section": "chorus2" },
+  { "time": 85, "text": "United in purpose, our visions align,", "section": "chorus2" },
+  { "time": 91, "text": "In prose and in verse, our talents combine.", "section": "chorus2" },
+  
+  { "time": 96, "text": "O Reuben College, cradle of thought,", "section": "bridge" },
+  { "time": 102, "text": "Through \"The Reuby,\" our passions are taught.", "section": "bridge" },
+  { "time": 108, "text": "We celebrate voices, both young and old,", "section": "bridge" },
+  { "time": 114, "text": "In this tapestry of wisdom, our stories are told.", "section": "bridge" },
+  
+  { "time": 120, "text": "Sing out, O Reuby, with harmonies pure,", "section": "chorus3" },
+  { "time": 126, "text": "Your pages our stories, enduring and sure.", "section": "chorus3" },
+  { "time": 132, "text": "United in purpose, our visions align,", "section": "chorus3" },
+  { "time": 138, "text": "In prose and in verse, our talents combine.", "section": "chorus3" },
+  
+  { "time": 144, "text": "As seasons turn and new minds convene,", "section": "outro" },
+  { "time": 150, "text": "\"The Reuby\" stands, ever serene.", "section": "outro" },
+  { "time": 156, "text": "A testament to our collective voice,", "section": "outro" },
+  { "time": 162, "text": "In its chorus, we rejoice.", "section": "outro" }
+] 
