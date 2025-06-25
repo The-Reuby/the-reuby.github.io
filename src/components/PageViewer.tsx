@@ -335,9 +335,8 @@ export const PageViewer = ({
     };
   }, [currentIssue, onPageChange, viewMode, currentPage]);
 
-  // Toggle between single and double page view
-  const toggleViewMode = () => {
-    // Don't allow double page view when screen is too narrow or TOC is hidden
+  // Check if double page view is allowed
+  const checkDoublePageConstraints = () => {
     if (!isScreenWideEnough || !isTocVisible) {
       const tooNarrowReason = !isScreenWideEnough 
         ? "Two-page view is only available on larger screens" 
@@ -356,48 +355,9 @@ export const PageViewer = ({
         messageTimeoutRef.current = null;
       }, 3000);
       
-      return;
+      return false;
     }
-    
-    // Update the URL parameter instead of directly changing state
-    const newMode = viewMode === 'single' ? 'double' : 'single';
-    
-    // Create a new URLSearchParams instance
-    const newParams = new URLSearchParams(searchParams);
-    
-    if (newMode === 'double') {
-      newParams.set('doubleview', 'true');
-    } else {
-      newParams.delete('doubleview');
-    }
-    
-    // Update search params (this will trigger the useEffect in the parent via URL change)
-    setSearchParams(newParams, { replace: true });
-    
-    // Also update local state for immediate effect
-    setViewMode(newMode);
-    
-    // Force reload the pages and reset observer
-    setTimeout(() => {
-      if (pageContainerRef.current && observerRef.current) {
-        // Disconnect existing observer
-        observerRef.current.disconnect();
-        
-        // Wait for DOM to update then re-observe
-        setTimeout(() => {
-          if (pageContainerRef.current && observerRef.current) {
-            const pageElements = pageContainerRef.current.querySelectorAll('[data-page], [data-spread-start]');
-            pageElements.forEach(el => {
-              observerRef.current?.observe(el);
-            });
-            console.log(`Re-observed ${pageElements.length} elements after mode change to ${newMode}`);
-            
-            // Scroll to current page in new view mode
-            scrollToPage(currentPage);
-          }
-        }, 200);
-      }
-    }, 100);
+    return true;
   };
 
   // Update view mode when doubleView prop changes
@@ -406,8 +366,33 @@ export const PageViewer = ({
       setViewMode('double');
     } else if (!doubleView) {
       setViewMode('single');
+    } else if (doubleView && (!isScreenWideEnough || !isTocVisible)) {
+      // Show message if trying to use double view but constraints aren't met
+      checkDoublePageConstraints();
     }
   }, [doubleView, isScreenWideEnough, isTocVisible]);
+
+  // Reset observer when view mode changes
+  useEffect(() => {
+    if (pageContainerRef.current && observerRef.current) {
+      // Disconnect existing observer
+      observerRef.current.disconnect();
+      
+      // Wait for DOM to update then re-observe
+      setTimeout(() => {
+        if (pageContainerRef.current && observerRef.current) {
+          const pageElements = pageContainerRef.current.querySelectorAll('[data-page], [data-spread-start]');
+          pageElements.forEach(el => {
+            observerRef.current?.observe(el);
+          });
+          console.log(`Re-observed ${pageElements.length} elements after mode change to ${viewMode}`);
+          
+          // Scroll to current page in new view mode
+          scrollToPage(currentPage);
+        }
+      }, 200);
+    }
+  }, [viewMode]);
 
   if (!currentIssue) {
     return (
@@ -628,26 +613,6 @@ export const PageViewer = ({
           {tooNarrowReason}
         </div>
       )}
-      
-      {/* Navigation and view mode controls - visible when screen is wide enough */}
-      <div className={`fixed bottom-4 right-4 flex space-x-2 z-[30] ${(!isScreenWideEnough || !isTocVisible) ? 'hidden lg:flex' : ''}`}>
-        <button
-          className="p-3 rounded-full glass hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          onClick={toggleViewMode}
-          aria-label={viewMode === 'single' ? "Switch to double page view" : "Switch to single page view"}
-          title={viewMode === 'single' ? "Double page view" : "Single page view"}
-        >
-          {viewMode === 'single' ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
-            </svg>
-          )}
-        </button>
-      </div>
     </div>
   );
 }; 

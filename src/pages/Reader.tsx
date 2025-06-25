@@ -216,6 +216,20 @@ export const Reader = () => {
     setShowComments(prevState => !prevState);
   };
 
+  // Toggle single/double page view mode
+  const toggleViewMode = () => {
+    const newParams = new URLSearchParams(location.search);
+    const currentDoubleView = params.get('doubleview') === 'true';
+    
+    if (currentDoubleView) {
+      newParams.delete('doubleview');
+    } else {
+      newParams.set('doubleview', 'true');
+    }
+    
+    navigate(`?${newParams.toString()}`, { replace: true });
+  };
+
   // Close menu on escape key press
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
@@ -322,15 +336,39 @@ export const Reader = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {/* Comments toggle - hidden on mobile, shown on desktop */}
               <button
                 onClick={toggleComments}
-                className="flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="hidden lg:flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 aria-label="Toggle comments"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 {showComments ? 'Hide Comments' : 'Show Comments'}
+              </button>
+              
+              {/* Single/Double page toggle - hidden on mobile, shown on desktop */}
+              <button
+                onClick={toggleViewMode}
+                className="hidden lg:flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                aria-label="Toggle view mode"
+              >
+                {params.get('doubleview') === 'true' ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+                    </svg>
+                    Single Page
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    Double Page
+                  </>
+                )}
               </button>
               <button
                 onClick={() => {
@@ -374,16 +412,30 @@ export const Reader = () => {
           currentPage={currentPage}
         />
         
-        {/* Floating TOC button for mobile */}
-        <button
-          className="lg:hidden fixed bottom-6 left-6 z-[95] p-3 rounded-full bg-primary-600 text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          onClick={toggleMobileMenu}
-          aria-label="Open table of contents"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        {/* Floating buttons for mobile */}
+        <div className="lg:hidden fixed bottom-6 left-6 z-[95] flex flex-col gap-3">
+          {/* TOC button */}
+          <button
+            className="p-3 rounded-full bg-primary-600 text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            onClick={toggleMobileMenu}
+            aria-label="Open table of contents"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          {/* Comments button */}
+          <button
+            className="p-3 rounded-full bg-slate-600 text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+            onClick={toggleComments}
+            aria-label="Toggle comments"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </button>
+        </div>
         
         {/* Page Viewer */}
         <PageViewer 
