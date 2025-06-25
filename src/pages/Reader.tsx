@@ -450,10 +450,10 @@ export const Reader = () => {
         {showComments && (
           <>
             {/* Mobile: Full-screen overlay */}
-            <div className="lg:hidden fixed inset-0 z-[100] bg-white dark:bg-slate-800">
+            <div className="lg:hidden fixed inset-0 z-[100] bg-white/60 dark:bg-slate-800/60 backdrop-blur-md">
               <div className="flex flex-col h-full">
                 {/* Mobile Header */}
-                <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <div className="flex items-center justify-between p-4 border-b border-slate-200/40 dark:border-slate-700/40 bg-white/15 dark:bg-slate-800/15 backdrop-blur-sm">
                   <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                     Comments
                   </h2>

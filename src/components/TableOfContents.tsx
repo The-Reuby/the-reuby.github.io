@@ -89,7 +89,7 @@ export const TableOfContents = ({
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-primary-600 dark:text-primary-400">{currentIssue.name}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {new Date(currentIssue.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+            {new Date(currentIssue.date).toLocaleDateString('en-UK', { year: 'numeric', month: 'long' })}
           </p>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Team: {currentIssue.editors.join(', ')}
@@ -108,10 +108,10 @@ export const TableOfContents = ({
       initial={{ x: '-100%' }}
       animate={{ x: isMobileMenuOpen ? 0 : '-100%' }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="fixed top-0 left-0 w-72 h-full z-[100] lg:hidden bg-white dark:bg-slate-800 shadow-xl"
+      className="fixed top-0 left-0 w-72 h-full z-[100] lg:hidden bg-white/60 dark:bg-slate-800/60 backdrop-blur-md shadow-xl"
       style={{ height: '100%' }}
     >
-      <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+      <div className="flex justify-between items-center p-4 border-b border-slate-200/40 dark:border-slate-700/40 bg-white/15 dark:bg-slate-800/15 backdrop-blur-sm">
         <h2 className="text-xl font-bold">Table of Contents</h2>
         <button
           className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
