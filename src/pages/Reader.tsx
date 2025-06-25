@@ -5,6 +5,7 @@ import { PageViewer } from '../components/PageViewer';
 import { TableOfContents } from '../components/TableOfContents';
 import { Navbar } from '../components/Navbar';
 import { getAssetPath } from '../utils/pathUtils';
+import { useMetaTags } from '../hooks/useMetaTags';
 
 export const Reader = () => {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null);
@@ -25,6 +26,20 @@ export const Reader = () => {
   const initialPageNumber = pageParam ? parseInt(pageParam, 10) : 1;
   const [currentPage, setCurrentPage] = useState(isNaN(initialPageNumber) ? 1 : initialPageNumber);
   const lastNavigatedPageRef = useRef(initialPageNumber);
+  
+  // Generate meta tags for the current issue
+  const metaTagsOptions = currentIssue ? {
+    title: `${currentIssue.name}`,
+    type: 'magazine',
+    url: `${window.location.origin}${window.location.pathname}#/reader?issue=${currentIssue.slug}`,
+    description: `Read ${currentIssue.name} - ${new Date(currentIssue.date).toLocaleDateString('en-UK', {
+      year: 'numeric',
+      month: 'long'
+    })} issue of The Reuby, Reuben College's student magazine.`
+  } : null;
+  
+  // Update meta tags when issue changes
+  useMetaTags(metaTagsOptions);
   
   // Detect screen size
   useEffect(() => {
