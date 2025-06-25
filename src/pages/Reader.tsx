@@ -14,6 +14,7 @@ export const Reader = () => {
   const [error, setError] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   
   // Get the issue slug from URL parameters
   const location = useLocation();
@@ -26,6 +27,9 @@ export const Reader = () => {
   const initialPageNumber = pageParam ? parseInt(pageParam, 10) : 1;
   const [currentPage, setCurrentPage] = useState(isNaN(initialPageNumber) ? 1 : initialPageNumber);
   const lastNavigatedPageRef = useRef(initialPageNumber);
+  
+  // Ref for the comments container
+  const commentsRef = useRef<HTMLDivElement>(null);
   
   // Generate meta tags for the current issue
   const metaTagsOptions = currentIssue ? {
@@ -54,6 +58,27 @@ export const Reader = () => {
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
+
+  // Load Utterances comments when showComments is true and currentIssue is available
+  useEffect(() => {
+    if (showComments && currentIssue && commentsRef.current) {
+      // Clear any existing comments
+      commentsRef.current.innerHTML = '';
+      
+      // Create and configure the script element
+      const script = document.createElement('script');
+      script.src = 'https://utteranc.es/client.js';
+      script.setAttribute('repo', 'The-Reuby/the-reuby.github.io');
+      script.setAttribute('issue-term', `${currentIssue.name}`);
+      script.setAttribute('label', 'Comment');
+      script.setAttribute('theme', 'github-light');
+      script.setAttribute('crossorigin', 'anonymous');
+      script.async = true;
+      
+      // Append the script to the comments container
+      commentsRef.current.appendChild(script);
+    }
+  }, [showComments, currentIssue]);
   
   // Fetch the issue data
   useEffect(() => {
@@ -173,6 +198,11 @@ export const Reader = () => {
     setIsMobileMenuOpen(false);
   };
 
+  // Toggle comments section
+  const toggleComments = () => {
+    setShowComments(prevState => !prevState);
+  };
+
   // Close menu on escape key press
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
@@ -278,31 +308,43 @@ export const Reader = () => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                try {
-                  // First attempt - use React Router navigation
-                  navigate('/', { replace: true });
-                  
-                  // Set a fallback - if the page doesn't change within 100ms, force reload
-                  setTimeout(() => {
-                    if (window.location.pathname.includes('/reader')) {
-                      window.location.href = '/';
-                    }
-                  }, 100);
-                } catch (e) {
-                  // Fallback to direct navigation if React Router fails
-                  window.location.href = '/';
-                }
-              }}
-              className="flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              aria-label="Back to Issues list"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Issues
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleComments}
+                className="flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                aria-label="Toggle comments"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                {showComments ? 'Hide Comments' : 'Show Comments'}
+              </button>
+              <button
+                onClick={() => {
+                  try {
+                    // First attempt - use React Router navigation
+                    navigate('/', { replace: true });
+                    
+                    // Set a fallback - if the page doesn't change within 100ms, force reload
+                    setTimeout(() => {
+                      if (window.location.pathname.includes('/reader')) {
+                        window.location.href = '/';
+                      }
+                    }, 100);
+                  } catch (e) {
+                    // Fallback to direct navigation if React Router fails
+                    window.location.href = '/';
+                  }
+                }}
+                className="flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                aria-label="Back to Issues list"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Issues
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -338,6 +380,32 @@ export const Reader = () => {
           isTocVisible={isLargeScreen || isMobileMenuOpen}
           doubleView={params.get('doubleview') === 'true'}
         />
+        
+        {/* Comments Section - Right Panel */}
+        {showComments && (
+          <div className="w-80 xl:w-96 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 overflow-y-auto">
+            <div className="px-4 sm:px-6 lg:px-8 py-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                  Comments for {currentIssue.name}
+                </h2>
+                <button
+                  onClick={toggleComments}
+                  className="flex items-center px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  aria-label="Close comments"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div 
+                ref={commentsRef}
+                className="w-full"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
