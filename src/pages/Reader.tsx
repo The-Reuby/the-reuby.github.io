@@ -28,8 +28,9 @@ export const Reader = () => {
   const [currentPage, setCurrentPage] = useState(isNaN(initialPageNumber) ? 1 : initialPageNumber);
   const lastNavigatedPageRef = useRef(initialPageNumber);
   
-  // Ref for the comments container
-  const commentsRef = useRef<HTMLDivElement>(null);
+  // Refs for the comments containers (mobile and desktop)
+  const mobileCommentsRef = useRef<HTMLDivElement>(null);
+  const desktopCommentsRef = useRef<HTMLDivElement>(null);
   
   // Generate meta tags for the current issue
   const metaTagsOptions = currentIssue ? {
@@ -61,22 +62,34 @@ export const Reader = () => {
 
   // Load Utterances comments when showComments is true and currentIssue is available
   useEffect(() => {
-    if (showComments && currentIssue && commentsRef.current) {
-      // Clear any existing comments
-      commentsRef.current.innerHTML = '';
+    if (showComments && currentIssue) {
+      // Determine which container to use based on screen size
+      const isMobile = window.innerWidth < 1024;
+      const targetRef = isMobile ? mobileCommentsRef : desktopCommentsRef;
       
-      // Create and configure the script element
-      const script = document.createElement('script');
-      script.src = 'https://utteranc.es/client.js';
-      script.setAttribute('repo', 'The-Reuby/the-reuby.github.io');
-      script.setAttribute('issue-term', `${currentIssue.name}`);
-      script.setAttribute('label', 'Comment');
-      script.setAttribute('theme', 'github-light');
-      script.setAttribute('crossorigin', 'anonymous');
-      script.async = true;
+      if (targetRef.current) {
+        // Clear any existing comments
+        targetRef.current.innerHTML = '';
+        
+        // Create and configure the script element
+        const script = document.createElement('script');
+        script.src = 'https://utteranc.es/client.js';
+        script.setAttribute('repo', 'The-Reuby/the-reuby.github.io');
+        script.setAttribute('issue-term', `${currentIssue.name}`);
+        script.setAttribute('label', 'Comment');
+        script.setAttribute('theme', 'github-light');
+        script.setAttribute('crossorigin', 'anonymous');
+        script.async = true;
+        
+        // Append the script to the comments container
+        targetRef.current.appendChild(script);
+      }
       
-      // Append the script to the comments container
-      commentsRef.current.appendChild(script);
+      // Also clear the other container to avoid duplicate comments
+      const otherRef = isMobile ? desktopCommentsRef : mobileCommentsRef;
+      if (otherRef.current) {
+        otherRef.current.innerHTML = '';
+      }
     }
   }, [showComments, currentIssue]);
   
@@ -381,30 +394,69 @@ export const Reader = () => {
           doubleView={params.get('doubleview') === 'true'}
         />
         
-        {/* Comments Section - Right Panel */}
+        {/* Comments Section - Responsive Design */}
         {showComments && (
-          <div className="w-80 xl:w-96 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 overflow-y-auto">
-            <div className="px-4 sm:px-6 lg:px-8 py-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  Comments for {currentIssue.name}
-                </h2>
-                <button
-                  onClick={toggleComments}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  aria-label="Close comments"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+          <>
+            {/* Mobile: Full-screen overlay */}
+            <div className="lg:hidden fixed inset-0 z-[100] bg-white dark:bg-slate-800">
+              <div className="flex flex-col h-full">
+                {/* Mobile Header */}
+                <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                    Comments
+                  </h2>
+                  <button
+                    onClick={toggleComments}
+                    className="flex items-center px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    aria-label="Close comments"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Close
+                  </button>
+                </div>
+                
+                {/* Mobile Comments Content */}
+                <div className="flex-1 overflow-y-auto p-4">
+                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                    {currentIssue.name}
+                  </div>
+                  <div 
+                    ref={mobileCommentsRef}
+                    className="w-full"
+                  />
+                </div>
               </div>
-              <div 
-                ref={commentsRef}
-                className="w-full"
-              />
             </div>
-          </div>
+            
+            {/* Desktop: Right side panel */}
+            <div className="hidden lg:block w-80 xl:w-96 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 overflow-y-auto">
+              <div className="px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Comments
+                  </h2>
+                  <button
+                    onClick={toggleComments}
+                    className="flex items-center px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    aria-label="Close comments"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  {currentIssue.name}
+                </div>
+                <div 
+                  ref={desktopCommentsRef}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
