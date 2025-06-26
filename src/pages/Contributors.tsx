@@ -237,16 +237,16 @@ export const Contributors = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Background overlay */}
           <div 
-            className="fixed inset-0 bg-black/85 backdrop-blur-sm transition-all duration-300"
+            className="fixed inset-0 bg-black/20 backdrop-blur-md transition-all duration-300"
             onClick={closeModal}
           ></div>
 
           {/* Modal panel */}
-          <div className="relative w-full max-w-7xl h-[600px] bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden border border-slate-200/50 dark:border-slate-700/50">
+          <div className="relative w-full max-w-7xl h-[600px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-2xl overflow-hidden border border-white/30 dark:border-slate-700/50">
             {/* Close button */}
             <button
               onClick={closeModal}
-              className="absolute top-5 right-5 z-20 p-2.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="absolute top-5 right-5 z-20 p-2.5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl border border-white/30 dark:border-slate-700/30"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -282,7 +282,7 @@ export const Contributors = () => {
               </div>
 
               {/* Content section */}
-              <div className="lg:w-3/5 flex flex-col h-full bg-slate-50/30 dark:bg-slate-800/30">
+              <div className="lg:w-3/5 flex flex-col h-full bg-white/10 dark:bg-slate-800/20 backdrop-blur-lg">
                 <div className="flex-1 p-6 lg:p-10 flex flex-col justify-center">
                   {/* Name */}
                   <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-3 leading-tight tracking-tight">
@@ -304,7 +304,7 @@ export const Contributors = () => {
                 </div>
 
                 {/* Navigation */}
-                <div className="flex items-center justify-between border-t border-slate-200/60 dark:border-slate-700/60 bg-white/40 dark:bg-slate-900/40 px-6 lg:px-10 py-5">
+                <div className="flex items-center justify-between border-t border-white/20 dark:border-slate-700/30 bg-white/10 dark:bg-slate-900/20 backdrop-blur-lg px-6 lg:px-10 py-5">
                   <button
                     onClick={prevMember}
                     disabled={currentMemberIndex === 0}
