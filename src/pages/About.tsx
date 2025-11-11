@@ -54,20 +54,27 @@ export const About = () => {
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden h-full">
               <div className="p-8">
                 <h2 className="text-2xl font-bold mb-4 text-primary-700 dark:text-primary-300">Our Mission</h2>
-                <ul className="space-y-4">
+                  <ul className="space-y-4">
                   <li className="flex items-start">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Mission one:</span> Give voice to people of Reuben
+                    <div>
+                      <span className="font-semibold text-primary-700 dark:text-primary-300">Give Voice to Reubenites</span>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      </p>
+                    </div>
                   </li>
                   <li className="flex items-start">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Mission two:</span> Enrich world with knowledge and ideas
+                    <div>
+                      <span className="font-semibold text-primary-700 dark:text-primary-300">Enrich the World</span>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      </p>
+                    </div>
                   </li>
-                  
                 </ul>
               </div>
             </div>
@@ -87,9 +94,12 @@ export const About = () => {
                     <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">H</div>
                     <span><strong>Current Issue</strong> - <Link to="/reader?issue=reuby3" className="text-primary-600 dark:text-primary-400 hover:underline">Instinction</Link> - Trinity Term 2025 </span>
                   </li>
+                 
+
                   <li className="flex items-start">
-                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">T</div>
-                    <span><strong>Next Issue</strong> Soup of Story </span>
+                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">H</div>
+                    <span><strong>Next Issue</strong> - <Link to="/submission" className="text-primary-600 dark:text-primary-400 hover:underline">Soup of Story</Link> - Trinity Term 2026</span>
+
                   </li>
                 </ul>
               </div>
