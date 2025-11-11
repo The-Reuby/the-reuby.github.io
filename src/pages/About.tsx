@@ -59,26 +59,15 @@ export const About = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Great Mission one</span>
+                    <span>Mission one:</span> Give voice to people of Reuben
                   </li>
                   <li className="flex items-start">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Great Mission two</span>
+                    <span>Mission two:</span> Enrich world with knowledge and ideas
                   </li>
-                  <li className="flex items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Great Mission three</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Great Mission four</span>
-                  </li>
+                  
                 </ul>
               </div>
             </div>
@@ -100,7 +89,7 @@ export const About = () => {
                   </li>
                   <li className="flex items-start">
                     <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">T</div>
-                    <span><strong>Next Issue</strong> - TBC </span>
+                    <span><strong>Next Issue</strong> Soup of Story </span>
                   </li>
                 </ul>
               </div>
