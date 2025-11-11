@@ -1,12 +1,18 @@
 {
   "current": {
+    "id": "Soup2025",
+    "title": "2026 Issue",
+    "theme": "Soup of Story",
+    "file": "2026-guidelines.md",
+    "deadline": "2026-03-16"
+  },
+  "archived": [
+      {
     "id": "Instinction2025",
     "title": "2025 Issue",
     "theme": "Instinction",
-    "file": "current-guidelines.md",
+    "file": "2025-guidelines.md",
     "deadline": "2025-04-15"
-  },
-  "archived": [
-      
+  }
   ]
 }
