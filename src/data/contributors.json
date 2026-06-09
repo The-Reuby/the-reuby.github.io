@@ -10,21 +10,20 @@
       "name": "Eliza Rayner",
       "role": "Graphic Designer",
       "image": "/images/people/eliza.png",
-      "bio": "Eliza is a DPhil student on the Interdisciplinary Biosciences DTP studying the evolution of antibiotic resistance. The Reuby was one of the first things she got involved in when she joined Reuben College three years ago, and she hasn’t looked back since! Every time a new issue comes around, she really looks forward to the chance to take on a creative project and bring the amazing work of our contributors to life."
+      "bio": "Eliza is a DPhil student on the Interdisciplinary Biosciences DTP studying the evolution of antibiotic resistance. The Reuby was one of the first things she got involved in when she joined Reuben College three years ago, and she hasn\u2019t looked back since! Every time a new issue comes around, she really looks forward to the chance to take on a creative project and bring the amazing work of our contributors to life."
     },
     {
       "name": "Jayroop Ramesh",
       "role": "Senior Editor",
       "image": "/images/people/jay.png",
-      "bio": "Words unsaid are the window to a person’s soul. Wrongly so, perhaps, but Jay believes words of all shapes and sizes are beautiful. In these days of algorithmically generated lorem ipsums, however inspired by the collective knowledge of humanity, Jay aims to hold on to the spark of people’s innate desire to create and communicate. And that’s what The Reuby does, share the wonderful words - worry warts and all - of Reubenites!"
+      "bio": "Words unsaid are the window to a person\u2019s soul. Wrongly so, perhaps, but Jay believes words of all shapes and sizes are beautiful. In these days of algorithmically generated lorem ipsums, however inspired by the collective knowledge of humanity, Jay aims to hold on to the spark of people\u2019s innate desire to create and communicate. And that\u2019s what The Reuby does, share the wonderful words - worry warts and all - of Reubenites!"
     },
     {
       "name": "Puyu Wang",
       "role": "IT Officer and Webmaster (Maintainter of this Website)",
       "image": "https://puyuwang.org/image/profile.png",
-      "bio": "Puyu is yet another DPhil student in Engineering Science at the Oxford e-Research Centre. Puyu is trying to help computers grasp the nuances of human culture. For more information, please visit Puyu's website at https://puyuwang.org. For Reuby, Puyu vibe coded a website where all past issues—as well as the current one—are easily accessible."
+      "bio": "Puyu is yet another DPhil student in Engineering Science at the Oxford e-Research Centre. Puyu is trying to help computers grasp the nuances of human culture. For more information, please visit Puyu's website at https://puyuwang.org. For Reuby, Puyu vibe coded a website where all past issues\u2014as well as the current one\u2014are easily accessible."
     },
-    
     {
       "name": "Katherine Faulkner",
       "role": "Editor and Visual Artist",
@@ -35,9 +34,8 @@
       "name": "Hannah Cole",
       "role": "Publicity officer",
       "image": "/images/people/hannah.jpg",
-      "bio": "Hannah, a once inspiring journalist turned criminologist, joined The Reuby to feel connected again to her reporting roots––though she is not a writer, but merely the face behind the Reuby Instagram. When she’s not investigating crimes, Hannah enjoys being in creative and journalistic environments. The Reuby offered the perfect opportunity to engage in a publication exploring the unique intersection of niche news, art, culture, and technology stories. Hannah probably will not leave her life of crime behind, but The Reuby makes a convincing argument for returning to journalism."
+      "bio": "Hannah, a once inspiring journalist turned criminologist, joined The Reuby to feel connected again to her reporting roots\u2013\u2013though she is not a writer, but merely the face behind the Reuby Instagram. When she\u2019s not investigating crimes, Hannah enjoys being in creative and journalistic environments. The Reuby offered the perfect opportunity to engage in a publication exploring the unique intersection of niche news, art, culture, and technology stories. Hannah probably will not leave her life of crime behind, but The Reuby makes a convincing argument for returning to journalism."
     },
-  
     {
       "name": "Shreya Ganguli",
       "role": "Editor",
@@ -52,7 +50,6 @@
     }
   ],
   "advisors": [
-   
     {
       "name": "Professor Dinosaur",
       "department": "Department of Dining with Dinosaurs",
@@ -70,7 +67,7 @@
     {
       "name": "Songqi Li",
       "role": "Social Media (2023-2024)",
-        "image": null,
+      "image": null,
       "bio": ""
     },
     {
@@ -108,11 +105,64 @@
       "role": "Team Member (2022-2023)",
       "image": null,
       "bio": ""
-    } 
-    
-    
+    }
   ],
   "contributors": [
-   "Aashna Uppal", "Alyina Rizwan Hashmi", "Elvina Crowe", "Zixian Fan", "Weilong Guan", "Rachel Kader", "Denise Reyna-Jeldes", "Katherine Faulkner", "JC Niala", "Valley Lopez", "Caroline Mawson", "Klara Hatinova", "Jayroop Ramesh", "Watu Wamae", "Reuben PER Fellows", "Omnia el Omrani", "Ajay Yadav", "Julia Salafranca-Gomez", "Puyu Wang", "Abdul Wahid Khan", "Anonymous", "Hung-Ju Chueh", "Sharon Mustri", "Orla Watson", "Danny Gold", "Laura Maghetiu", "Daniel Revach", "Prenika Anand", "Jannat Khan", "Anson Clark", "Lauren Boltz", "Genevi\u00e8ve Helleringer", "Gal Rubin", "Carol Sun", "Lionel Tarassenko - Reuben College President", "Isabelle Sturt", "Aleksander Petrov", "Tabish Khair", "Amaani Khan", "Kaley Regner", "Grace Allen", "The Editorial Team", "Juuso Haavisto", "Eloise Bishop", "Ambre Bertrand", "Dr Saher Hasnain", "Dr Fredi Otto", "Jennifer Rai", "Mauricio Reyna-Jeldes", "Mauricio Reyna Jeldes", "Ilya Kaminsky", "Annette Rossi", "Ernest T.Y. Wu", "Lars Holdijk", "Reuben Art Society", "Sophie Brixton"
+    "Aashna Uppal",
+    "Abdul Wahid Khan",
+    "Ajay Yadav",
+    "Aleksander Petrov",
+    "Alyina Rizwan Hashmi",
+    "Amaani Khan",
+    "Ambre Bertrand",
+    "Annette Rossi",
+    "Anonymous",
+    "Anson Clark",
+    "Carol Sun",
+    "Caroline Mawson",
+    "Daniel Revach",
+    "Danny Gold",
+    "Denise Reyna-Jeldes",
+    "Dr Fredi Otto",
+    "Dr Saher Hasnain",
+    "Eloise Bishop",
+    "Elvina Crowe",
+    "Ernest T.Y. Wu",
+    "Gal Rubin",
+    "Genevi\u00e8ve Helleringer",
+    "Grace Allen",
+    "Hung-Ju Chueh",
+    "Ilya Kaminsky",
+    "Isabelle Sturt",
+    "Jannat Khan",
+    "Jayroop Ramesh",
+    "JC Niala",
+    "Jennifer Rai",
+    "Julia Salafranca-Gomez",
+    "Juuso Haavisto",
+    "Kaley Regner",
+    "Katherine Faulkner",
+    "Klara Hatinova",
+    "Lars Holdijk",
+    "Laura Maghetiu",
+    "Lauren Boltz",
+    "Lionel Tarassenko - Reuben College President",
+    "Mauricio Reyna Jeldes",
+    "Mauricio Reyna-Jeldes",
+    "Omnia el Omrani",
+    "Orla Watson",
+    "Prenika Anand",
+    "Puyu Wang",
+    "Rachel Kader",
+    "Reuben Art Society",
+    "Reuben PER Fellows",
+    "Sharon Mustri",
+    "Sophie Brixton",
+    "Tabish Khair",
+    "The Editorial Team",
+    "Valley Lopez",
+    "Watu Wamae",
+    "Weilong Guan",
+    "Zixian Fan"
   ]
-} 
+}
