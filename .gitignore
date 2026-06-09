@@ -8,7 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-# dist
+# dist is rebuilt by `npm run build` (and by CI on deploy), so it is not tracked.
+dist
 dist-ssr
 *.local
 
@@ -25,5 +26,7 @@ dist-ssr
 
 # ignore public files for now because we need to host it on a server
 # public
-# ignore reuby3.pdf
-reuby3.pdf
+# Large source PDFs live in tools/ and are optimized into public/magazines/*.pdf
+# (see tools/optimize_pdf.sh). Keep the heavy originals out of the repo, but DO
+# track the optimized public/magazines/*.pdf that the app actually serves.
+/tools/*.pdf

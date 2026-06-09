@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Issue, Article, IssueMeta } from '../types';
 import { PageViewer } from '../components/PageViewer';
+// Lazy so pdf.js (~1MB core + worker) only loads when an issue actually uses it.
+const PdfPageViewer = lazy(() => import('../components/PdfPageViewer'));
 import { TableOfContents } from '../components/TableOfContents';
 import { Navbar } from '../components/Navbar';
 import { getAssetPath } from '../utils/pathUtils';
@@ -437,14 +439,33 @@ export const Reader = () => {
           </button>
         </div>
         
-        {/* Page Viewer */}
-        <PageViewer 
-          currentIssue={currentIssue} 
-          initialPage={currentPage}
-          onPageChange={handlePageChange}
-          isTocVisible={isLargeScreen || isMobileMenuOpen}
-          doubleView={params.get('doubleview') === 'true'}
-        />
+        {/* Page Viewer — PDF-direct rendering when the issue provides a pdfUrl,
+            otherwise the pre-rendered PNG viewer. Both share the same API. */}
+        {currentIssue.source === 'pdf' && currentIssue.pdfUrl ? (
+          <Suspense
+            fallback={
+              <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+                <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            }
+          >
+            <PdfPageViewer
+              currentIssue={{ pdfUrl: currentIssue.pdfUrl, pageCount: currentIssue.pageCount }}
+              initialPage={currentPage}
+              onPageChange={handlePageChange}
+              isTocVisible={isLargeScreen || isMobileMenuOpen}
+              doubleView={params.get('doubleview') === 'true'}
+            />
+          </Suspense>
+        ) : (
+          <PageViewer
+            currentIssue={currentIssue}
+            initialPage={currentPage}
+            onPageChange={handlePageChange}
+            isTocVisible={isLargeScreen || isMobileMenuOpen}
+            doubleView={params.get('doubleview') === 'true'}
+          />
+        )}
         
         {/* Comments Section - Responsive Design */}
         {showComments && (
