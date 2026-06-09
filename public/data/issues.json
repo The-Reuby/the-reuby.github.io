@@ -6,6 +6,8 @@
   "oxfordTerm": "TT25",
   "folder": "/magazines/reuby3/",
   "pageCount": 51,
+  "source": "pdf",
+  "pdfUrl": "/magazines/reuby3.pdf",
   "editors": ["Daniel Revach", "Hannah Cole", "Eliza Rayner", "Katherine Faulkner", "Puyu Wang", "Prenika Anand","Jayroop Ramesh","Shreya Ganguli"]
 },
   {
@@ -15,6 +17,8 @@
     "oxfordTerm": "TT24",
     "folder": "/magazines/reubyte/",
     "pageCount": 28,
+    "source": "pdf",
+    "pdfUrl": "/magazines/reubyte.pdf",
     "editors": ["Jayroop Ramesh", "Daniel Revach", "Alyina Hamshi", "Eliza Rayner", "Katherine Faulkner", "Puyu Wang", "Songqi Li"]
   },
   {
@@ -24,6 +28,8 @@
     "oxfordTerm": "MT23",
     "folder": "/magazines/reuby2/",
     "pageCount": 42,
+    "source": "pdf",
+    "pdfUrl": "/magazines/reuby2.pdf",
     "editors": ["Daniel Revach", "Jayroop Ramesh", "Prenika Anand", "Eliza Rayner", "Charlotte Lenhard", "Puyu Wang", "Carol Sun"]
   },
   {
@@ -33,6 +39,8 @@
     "oxfordTerm": "TT22",
     "folder": "/magazines/reuby1/",
     "pageCount": 43,
+    "source": "pdf",
+    "pdfUrl": "/magazines/reuby1.pdf",
     "editors": ["Daniel Revach", "Rachel Kader", "Elvina 'Elvie' Crowe", "Isabelle 'Izzy' Sturt"]
   }
   

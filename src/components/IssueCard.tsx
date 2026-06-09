@@ -14,8 +14,8 @@ export const IssueCard = ({ issue, onClick, isLatest = false }: IssueCardProps) 
     day: 'numeric'
   });
 
-  // Generate the path to the cover image (000.png)
-  const coverImagePath = getAssetPath(`${issue.folder}000.png`);
+  // Cover thumbnail: explicit `cover` override, else convention covers/<slug>.png.
+  const coverImagePath = getAssetPath(issue.cover ?? `/magazines/covers/${issue.slug}.png`);
 
   return (
     <div 
@@ -37,11 +37,15 @@ export const IssueCard = ({ issue, onClick, isLatest = false }: IssueCardProps) 
       {/* Cover image with gradient overlay */}
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 opacity-30 group-hover:opacity-50 transition-opacity" />
-        <img 
-          src={coverImagePath} 
-          alt={`${issue.name} cover`} 
+        <img
+          src={coverImagePath}
+          alt={`${issue.name} cover`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
+          onError={(e) => {
+            // No cover uploaded yet: hide the broken image so the gradient + title show.
+            (e.currentTarget as HTMLImageElement).style.visibility = 'hidden';
+          }}
         />
       </div>
       

@@ -12,7 +12,9 @@ A responsive React application for browsing *Reuby*, the Reuben College student 
   - Single-page view (default on mobile)
   - Two-page spread (on larger screens)
 - **Responsive Design**: Optimized for all devices
-- **Lazy Loading**: Images load as you scroll
+- **PDF-direct reading**: Renders a single web-optimized PDF per issue via pdf.js,
+  streaming only the pages in view (HTTP range requests) — no per-page image export
+- **Lazy Loading**: Pages render as you scroll; off-screen pages are released to bound memory
 - **Keyboard Navigation**: Use arrow keys to navigate pages
 
 ## Technology Stack
@@ -27,14 +29,19 @@ A responsive React application for browsing *Reuby*, the Reuben College student 
 ```
 /public
   /magazines/
-    /spring-2025/     # Example issue with page images (001.png, 002.png, etc.)
+    reuby2.pdf        # Web-optimized, linearized PDF per issue (read directly by pdf.js)
   /data/              # JSON data files
-    issues.json       # Registry of all issues
-    spring-2025.json  # Metadata for spring 2025 issue
+    issues.json       # Registry of all issues (source: "pdf" + pdfUrl per issue)
+    reuby2.json       # Table of contents / article metadata for an issue
 /src
-  /components         # React components
+  /components
+    PdfPageViewer.tsx # Renders an issue's PDF on demand via pdf.js
+    PageViewer.tsx    # Legacy PNG viewer (fallback when source !== "pdf")
+  /utils/pdf.ts       # pdf.js worker setup + range-streaming loader
   /hooks              # Custom React hooks
   /types              # TypeScript type definitions
+/tools
+  optimize_pdf.sh     # Downsamples + linearizes a source PDF for web delivery
 ```
 
 ## Getting Started
