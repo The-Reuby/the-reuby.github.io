@@ -1,0 +1,37 @@
+{
+  "slug": "reuby1",
+  "issue": "The Reuby Issue 1 -- The Founding Issue",
+  "year": "2022",
+  "term": "TT22",
+  "members": [
+    {
+      "name": "Daniel Revach",
+      "role": "The Editor-in-Chief",
+      "programme": "MSc Cognitive and Evolutionary Anthropology",
+      "image": null,
+      "bio": "I am interested in systems thinking applied to human cognition and society. I hope my work will help humanity understand itself and unite around common goals. I have a passion for languages, writing, and letting my terrible sense of direction and caution lead me into epic adventures."
+    },
+    {
+      "name": "Rachel Kader",
+      "role": "The Art Editor",
+      "programme": "MSc Archaeology",
+      "image": null,
+      "bio": "A lot of my interests lie in my field of study; I love learning about people and cultures, I also have an interest in film, TV, and music."
+    },
+    {
+      "name": "Elvina 'Elvie' Crowe",
+      "role": "The Co-Editor",
+      "programme": "MPhil Nature, Society and Environmental Governance",
+      "image": null,
+      "bio": "I am a History and French graduate who has migrated into environmental philosophy and politics. I have made it my mission to elevate the status and illuminate the agency of nonhuman actors such as plants. My favourite things to do are hanging out with and foraging plants on walks, dancing to music and environmental activism."
+    },
+    {
+      "name": "Isabelle 'Izzy' Sturt",
+      "role": "The Graphic Designer",
+      "programme": "MSc Global and Area Studies",
+      "image": null,
+      "bio": "My studies focus on identities and community formation within the Chinese diaspora. Prior to Oxford, I studied International Relations and History at St Andrews, specialising in postcolonial theory and transnational history. At Reuben College, I serve as Graduate Director for Public Engagement with Research within the GCR."
+    }
+  ]
+}
+ 

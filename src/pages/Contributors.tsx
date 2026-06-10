@@ -5,13 +5,43 @@ interface Contributor {
   name: string;
   role?: string;
   department?: string;
+  programme?: string;
   image: string | null;
   bio?: string;
 }
 
+interface Team {
+  year: string;
+  issue: string;
+  slug: string;
+  term: string;
+  members: Contributor[];
+}
+
+// Load every per-issue team file (src/data/teams/*.json) at build time, so new
+// files like reuby4.json are picked up automatically. We drop blank template
+// rows (no name) and surface any year that still has named members, even if
+// their bios aren't filled in yet.
+const editorialTeams: Team[] = Object.values(
+  import.meta.glob<{ default: Team }>('../data/teams/*.json', { eager: true })
+)
+  .map((mod) => mod.default)
+  .map((team) => ({ ...team, members: team.members.filter((m) => m.name?.trim()) }))
+  .filter((team) => team.members.length > 0)
+  .sort((a, b) => Number(b.year) - Number(a.year));
+
 export const Contributors = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
+
+  // The newest year is the current editorial team; every older year is "past".
+  const latestTeam = editorialTeams[0];
+  const pastTeams = editorialTeams.slice(1);
+  const members = latestTeam?.members ?? [];
+
+  // Which past year is shown via the tabs (0 = most recent past year).
+  const [selectedPastIndex, setSelectedPastIndex] = useState(0);
+  const selectedPastTeam = pastTeams[selectedPastIndex];
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -23,7 +53,7 @@ export const Contributors = () => {
   };
 
   const nextMember = () => {
-    if (currentMemberIndex < contributorsData.editorial.length - 1) {
+    if (currentMemberIndex < members.length - 1) {
       setCurrentMemberIndex(currentMemberIndex + 1);
     }
   };
@@ -34,7 +64,7 @@ export const Contributors = () => {
     }
   };
 
-  const currentMember = contributorsData.editorial[currentMemberIndex];
+  const currentMember = members[currentMemberIndex];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -56,26 +86,33 @@ export const Contributors = () => {
           </div>
         </header>
 
-        {/* Editorial Team */}
+        {/* Editorial Team — the newest year */}
+        {latestTeam && (
         <section className="mb-20">
           <div className="mb-12 text-center">
             <h2 className="text-4xl font-bold text-primary-700 dark:text-primary-300 mb-4">Editorial Team</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8">
+            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-3">
             The Reuby is brought to life by a dedicated team of students from Reuben College who volunteer their time and talents to create each issue.
             </p>
-            <button
-              onClick={openModal}
-              className="hidden sm:inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:from-primary-700 hover:to-primary-800"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Introducing the Team
-            </button>
+            <p className="text-sm font-semibold text-primary-600 dark:text-primary-400 mb-8">
+              {latestTeam.issue} · {latestTeam.year}
+            </p>
+
+            <div className="flex items-center justify-center">
+              <button
+                onClick={openModal}
+                className="hidden sm:inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:from-primary-700 hover:to-primary-800"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Introducing the Team
+              </button>
+            </div>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {contributorsData.editorial.map((person: Contributor, index: number) => (
+            {members.map((person: Contributor, index: number) => (
               <div key={index} className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                 <div className="p-8">
                   <div className="flex items-start space-x-6">
@@ -92,7 +129,12 @@ export const Contributors = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300 mb-2">{person.name}</h3>
-                      <p className="text-primary-500 dark:text-primary-400 font-medium mb-3">{person.role}</p>
+                      {person.role && (
+                        <p className="text-primary-500 dark:text-primary-400 font-medium mb-1">{person.role}</p>
+                      )}
+                      {person.programme && (
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{person.programme}</p>
+                      )}
                       {person.bio && (
                         <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">{person.bio}</p>
                       )}
@@ -103,6 +145,7 @@ export const Contributors = () => {
             ))}
           </div>
         </section>
+        )}
 
         {/* Faculty Advisors */}
         <section className="mb-20">
@@ -143,7 +186,8 @@ export const Contributors = () => {
           </div>
         </section>
 
-        {/* Past Team Members */}
+        {/* Past Editorial Team — older years, grouped by issue */}
+        {pastTeams.length > 0 && (
         <section className="mb-20">
           <div className="mb-12 text-center">
             <h2 className="text-4xl font-bold text-primary-700 dark:text-primary-300 mb-4">Past Editorial Team</h2>
@@ -151,36 +195,68 @@ export const Contributors = () => {
             We would like to thank all those who have contributed to building The Reuby in previous years.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {contributorsData.past.map((person: Contributor, index: number) => (
-              <div key={index} className="bg-white dark:bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
-                        {person.image ? (
-                          <img src={person.image} alt={person.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        )}
+
+          {/* Year selector — pick which past year's team to view (scales to many years) */}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <label htmlFor="past-year" className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+              Viewing
+            </label>
+            <select
+              id="past-year"
+              value={selectedPastIndex}
+              onChange={(e) => setSelectedPastIndex(Number(e.target.value))}
+              className="px-5 py-3 rounded-xl border border-primary-200 dark:border-primary-700/50 bg-white dark:bg-slate-800 text-primary-700 dark:text-primary-300 font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+            >
+              {pastTeams.map((team, index) => (
+                <option key={team.slug} value={index}>
+                  {team.year} — {team.issue}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedPastTeam && (
+              <div key={selectedPastTeam.slug}>
+                <h3 className="text-2xl font-bold text-primary-700 dark:text-primary-300 mb-6 text-center">
+                  {selectedPastTeam.issue} <span className="text-slate-400 dark:text-slate-500 font-medium">· {selectedPastTeam.year}</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {selectedPastTeam.members.map((person: Contributor, index: number) => (
+                    <div key={index} className="bg-white dark:bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
+                      <div className="p-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
+                              {person.image ? (
+                                <img src={person.image} alt={person.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-primary-700 dark:text-primary-300 mb-1">{person.name}</h3>
+                            {person.role && (
+                              <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">{person.role}</p>
+                            )}
+                            {person.programme && (
+                              <p className="text-slate-400 dark:text-slate-500 text-sm mb-2">{person.programme}</p>
+                            )}
+                            {person.bio && (
+                              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{person.bio}</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-primary-700 dark:text-primary-300 mb-1">{person.name}</h3>
-                      <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-2">{person.role}</p>
-                      {person.bio && (
-                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{person.bio}</p>
-                      )}
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+          )}
         </section>
+        )}
 
         {/* Content Contributors */}
         <section className="mb-20">
@@ -290,10 +366,17 @@ export const Contributors = () => {
                   </h1>
                   
                   {/* Role tag */}
-                  <div className="inline-flex items-center px-5 py-2.5 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-semibold mb-7 w-fit shadow-sm border border-primary-200/60 dark:border-primary-700/40">
-                    <div className="w-2 h-2 bg-primary-500 rounded-full mr-2.5"></div>
-                    {currentMember.role}
-                  </div>
+                  {currentMember.role && (
+                    <div className="inline-flex items-center px-5 py-2.5 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-semibold mb-3 w-fit shadow-sm border border-primary-200/60 dark:border-primary-700/40">
+                      <div className="w-2 h-2 bg-primary-500 rounded-full mr-2.5"></div>
+                      {currentMember.role}
+                    </div>
+                  )}
+
+                  {/* Programme / study subject */}
+                  {currentMember.programme && (
+                    <p className="text-slate-600 dark:text-slate-400 font-medium mb-7">{currentMember.programme}</p>
+                  )}
 
                   {/* Bio */}
                   <div className="flex-1 overflow-y-auto max-h-80 bg-white/60 dark:bg-slate-900/60 rounded-xl p-5 shadow-inner border border-slate-200/40 dark:border-slate-700/40">
@@ -323,10 +406,10 @@ export const Contributors = () => {
                   {/* Progress indicator */}
                   <div className="flex items-center space-x-5">
                     <span className="text-sm text-slate-600 dark:text-slate-400 font-semibold px-3 py-1.5 bg-white/60 dark:bg-slate-800/60 rounded-lg shadow-sm">
-                      {currentMemberIndex + 1} of {contributorsData.editorial.length}
+                      {currentMemberIndex + 1} of {members.length}
                     </span>
                     <div className="flex items-center space-x-2.5">
-                      {contributorsData.editorial.map((_, index) => (
+                      {members.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentMemberIndex(index)}
@@ -342,9 +425,9 @@ export const Contributors = () => {
 
                   <button
                     onClick={nextMember}
-                    disabled={currentMemberIndex === contributorsData.editorial.length - 1}
+                    disabled={currentMemberIndex === members.length - 1}
                     className={`flex items-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
-                      currentMemberIndex === contributorsData.editorial.length - 1 
+                      currentMemberIndex === members.length - 1 
                         ? 'text-slate-400 cursor-not-allowed opacity-50' 
                         : 'text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-md hover:translate-x-0.5'
                     }`}
