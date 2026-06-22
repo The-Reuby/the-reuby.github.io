@@ -39,8 +39,8 @@ const cutoutSrc = (image?: string | null) =>
 const noCutout = new Set(['Katherine Faulkner']);
 
 export const Contributors = () => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const [currentMemberIndex, setCurrentMemberIndex] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   // Direction of the last navigation, so the incoming member slides in from the
   // matching side (1 = forward/right, -1 = back/left).
   const [direction, setDirection] = useState(1);
