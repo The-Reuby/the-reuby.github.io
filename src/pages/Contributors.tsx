@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import contributorsData from '../data/contributors.json';
 
 interface Contributor {
@@ -87,6 +87,14 @@ export const Contributors = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModalOpen, currentMemberIndex, members.length]);
 
+  // On mobile the faces are a horizontal strip — keep the active one centred.
+  const activeFaceRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (isModalOpen && window.matchMedia('(max-width: 1023px)').matches) {
+      activeFaceRef.current?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+  }, [currentMemberIndex, isModalOpen]);
+
   const currentMember = members[currentMemberIndex];
   const enterAnimation = direction >= 0 ? 'animate-enter-right' : 'animate-enter-left';
 
@@ -97,9 +105,9 @@ export const Contributors = () => {
   const cutoutSrc = (image?: string | null) =>
     image ? `/images/people/cutout/${image.split('/').pop()!.replace(/\.[^.]+$/, '')}.png` : undefined;
 
-  // These members are shown as full photos — their shots interact with the
-  // environment (the Reuben dinosaur), which a cutout would throw away.
-  const noCutout = new Set(['Katherine Faulkner', 'Megan Phillips']);
+  // Shown as a full photo — Katherine's shot interacts with the Reuben dinosaur,
+  // which a cutout would throw away.
+  const noCutout = new Set(['Katherine Faulkner']);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -346,7 +354,7 @@ export const Contributors = () => {
 
             {/* Team Introduction Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
           {/* Background overlay */}
           <div
             className="fixed inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
@@ -358,7 +366,7 @@ export const Contributors = () => {
             role="dialog"
             aria-modal="true"
             aria-label={`${latestTeam?.issue ?? 'Editorial team'} — meet the team`}
-            className="relative w-full max-w-6xl h-[92vh] lg:h-[720px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-3xl overflow-hidden border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
+            className="relative w-full max-w-6xl h-[94vh] sm:h-[92vh] lg:h-[720px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-2xl lg:rounded-3xl overflow-hidden border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
           >
             {/* Close button */}
             <button
@@ -374,7 +382,7 @@ export const Contributors = () => {
             {/* Stage — the focused member */}
             <div className="flex flex-col lg:flex-row flex-1 min-h-0">
               {/* Portrait — freeze-frame "introduce myself": cutout pops off its own slightly-blurred photo */}
-              <div key={currentMember.name} className="lg:w-[42%] h-80 lg:h-auto relative overflow-hidden bg-slate-900">
+              <div key={currentMember.name} className="lg:w-[42%] h-[44vh] sm:h-72 lg:h-auto relative overflow-hidden bg-slate-900">
                 {/* Background photo: slightly blurred behind a cutout, or the full sharp shot for environment portraits */}
                 {currentMember.image && (
                   <img
@@ -401,7 +409,7 @@ export const Contributors = () => {
                 {currentMember.image && !noCutout.has(currentMember.name) && (
                   <span
                     aria-hidden
-                    className="absolute z-[6] inset-x-0 top-5 text-center font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none pointer-events-none text-transparent [-webkit-text-stroke:2px_rgba(255,255,255,0.45)] text-[4.5rem] lg:text-[6rem]"
+                    className="absolute z-[6] inset-x-0 top-4 lg:top-5 text-center font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none pointer-events-none text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.45)] lg:[-webkit-text-stroke:2px_rgba(255,255,255,0.45)] text-[3.25rem] sm:text-[4.5rem] lg:text-[6rem]"
                   >
                     {currentMember.name.split(' ')[0]}
                   </span>
@@ -426,31 +434,33 @@ export const Contributors = () => {
                 )}
 
                 {/* Stickers */}
-                <span className="absolute top-4 left-4 z-30 -rotate-3 bg-primary-600 text-white text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded shadow-md">
+                <span className="absolute top-3 left-3 lg:top-4 lg:left-4 z-30 -rotate-3 bg-primary-600 text-white text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.15em] px-2 lg:px-2.5 py-1 rounded shadow-md">
                   The Reuby · {currentMemberIndex + 1}/{members.length}
                 </span>
-                <span className="absolute top-4 right-14 z-30 rotate-3 bg-amber-400 text-slate-900 text-[9px] font-extrabold uppercase tracking-[0.15em] leading-tight px-2 py-1 rounded shadow-md text-right">
+                <span className="absolute top-3 right-12 lg:top-4 lg:right-14 z-30 rotate-3 bg-amber-400 text-slate-900 text-[8px] lg:text-[9px] font-extrabold uppercase tracking-[0.15em] leading-tight px-1.5 lg:px-2 py-1 rounded shadow-md text-right">
                   Meet<br />the team
                 </span>
 
                 {/* Name plate */}
-                <div className="absolute z-30 inset-x-0 bottom-5 lg:bottom-6 flex flex-col items-center px-4">
-                  <div className="bg-white rounded-2xl px-5 py-2 shadow-2xl -rotate-1 max-w-full">
-                    <p className="text-lg lg:text-2xl font-black text-slate-900 uppercase tracking-tight leading-tight text-center">
+                <div className="absolute z-30 inset-x-0 bottom-4 lg:bottom-6 flex flex-col items-center px-4">
+                  <div className="bg-white rounded-xl lg:rounded-2xl px-4 lg:px-5 py-1.5 lg:py-2 shadow-2xl -rotate-1 max-w-full">
+                    <p className="text-base sm:text-lg lg:text-2xl font-black text-slate-900 uppercase tracking-tight leading-tight text-center">
                       {currentMember.name}
                     </p>
                   </div>
                   {currentMember.role && (
-                    <span className="mt-2 rotate-1 bg-amber-400 text-slate-900 text-[11px] lg:text-xs font-bold uppercase tracking-wide px-3 py-1 rounded shadow-md max-w-[92%] truncate">
+                    <span className="mt-1.5 lg:mt-2 rotate-1 bg-amber-400 text-slate-900 text-[10px] lg:text-xs font-bold uppercase tracking-wide px-2.5 lg:px-3 py-0.5 lg:py-1 rounded shadow-md max-w-[92%] truncate">
                       {currentMember.role}
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Story */}
-              <div className="lg:w-[58%] flex flex-col min-h-0 bg-gradient-to-br from-white/30 to-white/5 dark:from-slate-800/40 dark:to-slate-900/20 backdrop-blur-lg">
-                <div key={currentMemberIndex} className={`flex-1 min-h-0 overflow-y-auto scrollbar-hide p-6 lg:p-9 flex flex-col ${enterAnimation}`}>
+              {/* Story — a bottom-sheet on mobile, the right column on desktop */}
+              <div className="relative z-20 flex-1 lg:flex-none lg:w-[58%] flex flex-col min-h-0 rounded-t-3xl lg:rounded-none bg-white/95 dark:bg-slate-900/90 lg:bg-gradient-to-br lg:from-white/30 lg:to-white/5 lg:dark:from-slate-800/40 lg:dark:to-slate-900/20 backdrop-blur-lg shadow-[0_-8px_24px_rgba(0,0,0,0.15)] lg:shadow-none">
+                {/* Grab handle (mobile sheet affordance) */}
+                <div className="lg:hidden mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0"></div>
+                <div key={currentMemberIndex} className={`flex-1 min-h-0 overflow-y-auto scrollbar-hide p-5 pt-4 sm:p-6 lg:p-9 flex flex-col ${enterAnimation}`}>
                   {/* Eyebrow + index */}
                   <div className="flex items-center justify-between mb-4 pr-10 lg:pr-12">
                     <p className="text-[11px] uppercase tracking-[0.22em] font-bold text-primary-600 dark:text-primary-400">
@@ -462,7 +472,7 @@ export const Contributors = () => {
                   </div>
 
                   {/* Name + accent */}
-                  <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-[1.05] tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-[1.05] tracking-tight">
                     {currentMember.name}
                   </h1>
                   <div className="mt-3 h-1.5 w-12 bg-primary-500 rounded-full"></div>
@@ -500,27 +510,28 @@ export const Contributors = () => {
             </div>
 
             {/* Avatar dock — every member at a glance; click any face to focus them */}
-            <div className="shrink-0 border-t border-white/25 dark:border-slate-700/40 bg-white/30 dark:bg-slate-900/40 backdrop-blur-xl px-4 lg:px-6 pt-7 pb-6">
+            <div className="shrink-0 border-t border-white/25 dark:border-slate-700/40 bg-white/30 dark:bg-slate-900/40 backdrop-blur-xl px-3 sm:px-6 pt-5 pb-5 lg:pt-7 lg:pb-6">
               <div className="flex items-center justify-center gap-2 lg:gap-4">
                 {/* Prev */}
                 <button
                   onClick={prevMember}
                   disabled={currentMemberIndex === 0}
                   aria-label="Previous member"
-                  className="shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 shadow-md hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 hover:-translate-x-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-x-0 transition-all duration-200"
+                  className="hidden sm:flex shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full items-center justify-center bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 shadow-md hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 hover:-translate-x-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-x-0 transition-all duration-200"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
 
-                {/* Faces */}
-                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-5 max-w-2xl">
+                {/* Faces — horizontal strip on mobile (active auto-centred), wrapping huddle on desktop */}
+                <div className="flex items-center flex-nowrap lg:flex-wrap justify-start lg:justify-center overflow-x-auto lg:overflow-visible scrollbar-hide gap-x-3 gap-y-5 px-2 py-1 w-full lg:w-auto lg:max-w-2xl">
                   {members.map((person, index) => {
                     const active = index === currentMemberIndex;
                     return (
                       <button
                         key={index}
+                        ref={active ? activeFaceRef : undefined}
                         onClick={() => goToMember(index)}
                         aria-current={active}
                         aria-label={person.name}
@@ -530,8 +541,8 @@ export const Contributors = () => {
                         <span
                           className={`block rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 font-bold flex items-center justify-center transition-all duration-300 ease-out ${
                             active
-                              ? 'w-14 h-14 lg:w-16 lg:h-16 ring-4 ring-primary-500 ring-offset-2 ring-offset-white/40 dark:ring-offset-slate-900/40 shadow-xl -translate-y-1 scale-105'
-                              : 'w-11 h-11 lg:w-12 lg:h-12 ring-2 ring-white/50 dark:ring-slate-700/60 opacity-65 grayscale group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:ring-primary-300'
+                              ? 'w-12 h-12 lg:w-16 lg:h-16 ring-[3px] lg:ring-4 ring-primary-500 ring-offset-2 ring-offset-white/40 dark:ring-offset-slate-900/40 shadow-xl -translate-y-1 scale-105'
+                              : 'w-10 h-10 lg:w-12 lg:h-12 ring-2 ring-white/50 dark:ring-slate-700/60 opacity-65 grayscale group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:ring-primary-300'
                           }`}
                         >
                           {person.image ? (
@@ -560,7 +571,7 @@ export const Contributors = () => {
                   onClick={nextMember}
                   disabled={currentMemberIndex === members.length - 1}
                   aria-label="Next member"
-                  className="shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 shadow-md hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 hover:translate-x-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-x-0 transition-all duration-200"
+                  className="hidden sm:flex shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full items-center justify-center bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 shadow-md hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 hover:translate-x-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-x-0 transition-all duration-200"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
