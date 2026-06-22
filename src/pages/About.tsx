@@ -88,17 +88,17 @@ export const About = () => {
                 <ul className="space-y-4">
                   <li className="flex items-start">
                     <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">M</div>
-                    <span><strong>Previous Issue</strong> - <Link to="/reader?issue=reubyte" className="text-primary-600 dark:text-primary-400 hover:underline">The Reubyte</Link> - Trinity Term 2024</span>
+                    <span><strong>Previous Issue</strong> - <Link to="/reader?issue=reuby3" className="text-primary-600 dark:text-primary-400 hover:underline">Instinction</Link> - Trinity Term 202</span>
                   </li>
                   <li className="flex items-start">
                     <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">H</div>
-                    <span><strong>Current Issue</strong> - <Link to="/reader?issue=reuby3" className="text-primary-600 dark:text-primary-400 hover:underline">Instinction</Link> - Trinity Term 2025 </span>
+                    <span><strong>Current Issue</strong> - <Link to="/reader?issue=reuby4" className="text-primary-600 dark:text-primary-400 hover:underline">Soup of Story</Link> - Trinity Term 2026 </span>
                   </li>
                  
 
                   <li className="flex items-start">
                     <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">H</div>
-                    <span><strong>Next Issue</strong> - <Link to="/submission" className="text-primary-600 dark:text-primary-400 hover:underline">Soup of Story</Link> - Trinity Term 2026</span>
+                    <span><strong>Next Issue</strong> - <Link to="/submission" className="text-primary-600 dark:text-primary-400 hover:underline">TBC</Link> - Trinity Term 2026</span>
 
                   </li>
                 </ul>

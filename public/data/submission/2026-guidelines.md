@@ -1,6 +1,7 @@
 # Submission Guidelines 
 
-# The 'Soup of Story' The Reuby Issue 4
+# The 'Soup of Story' The Reuby Issue 4 
+✅ job done. We have digitally published the magazine and it is available to read online.
 
 
 ## Theme 
