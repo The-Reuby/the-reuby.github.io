@@ -1,5 +1,16 @@
 [
   {
+  "slug": "reuby4",
+  "name": "The Reuby Issue 4",
+  "date": "2026-06-22",
+  "oxfordTerm": "TT26",
+  "folder": "/magazines/reuby4/",
+  "pageCount": 55,
+  "source": "pdf",
+  "pdfUrl": "/magazines/reuby4.pdf",
+  "editors": ["Katherine Faulkner", "Daniel Revach", "Megan Phillips", "Prenika Anand", "Proshanto Chanda", "Jake Neuberger", "Jayroop Ramesh", "Eliza Rayner", "Puyu Wang"]
+},
+  {
   "slug": "reuby3",
   "name": "The Reuby Issue 3",
   "date": "2025-06-19",

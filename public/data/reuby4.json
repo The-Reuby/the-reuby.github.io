@@ -1,0 +1,120 @@
+{
+  "slug": "reuby4",
+  "articles": [
+    {
+      "id": "foreword",
+      "title": "Foreword",
+      "author": "Madam Scrumble Pawson",
+      "pages": [3]
+    },
+    {
+      "id": "editors-note",
+      "title": "Editor's Note",
+      "author": "Katherine Faulkner",
+      "pages": [4]
+    },
+    {
+      "id": "humans-of-reuben-kitchen-edition",
+      "title": "Humans of Reuben: Kitchen Edition",
+      "author": "The Reuben Kitchen Staff, Proshanto Chanda, Prenika Anand, Daniel Revach",
+      "pages": [5]
+    },
+    {
+      "id": "reuben-sports-spring-summer-updates",
+      "title": "Reuben Sports: Spring & Summer Updates",
+      "author": "Enno Schäfer, Eliza Rayner, Jowan Fromentin",
+      "pages": [13]
+    },
+    {
+      "id": "photos-from-ukraine",
+      "title": "Photos from Ukraine",
+      "author": "Kateryna Kuzminova",
+      "pages": [15]
+    },
+    {
+      "id": "flying-blind-preparing-for-a-career-in-the-era-of-ai",
+      "title": "Flying Blind: Preparing for a Career in the Era of AI",
+      "author": "Joseph Miller",
+      "pages": [19]
+    },
+    {
+      "id": "from-gilgamesh-to-gollum",
+      "title": "From Gilgamesh to Gollum",
+      "author": "Daniel Revach",
+      "pages": [21]
+    },
+    {
+      "id": "reuben-research-1",
+      "title": "Reuben Research:An Ode to Magazines",
+      "author": "Megan Phillips",
+      "pages": [24]
+    },
+
+    {
+      "id": "reuben-research-2",
+      "title": "Reuben Research: Measuring the Unmeasurable - What rankings can't tell us",
+      "author": "Meruyert Bizhanova",
+      "pages": [26]
+    },
+    {
+      "id": "reuben-research-3",
+      "title": "Reuben Research: Would You Trust ChatGPT as a Health Information Source?",
+      "author": "Sergej Kucenko",
+      "pages": [27]
+    },
+    {
+      "id": "soup-in-art-reuben-art-society",
+      "title": "Soup in Art: Reuben Art Society",
+      "author": "Joy Lai, Sophie Brixton, Megan Phillips",
+      "pages": [29]
+    },
+    {
+      "id": "reuben-art-competitions",
+      "title": "Reuben Art Competitions",
+      "author": "Robert Lu, Lei Clifton, Agnibeena Ghosh, Sarah Davidson",
+      "pages": [31]
+    },
+    {
+      "id": "poetry-corner-1",
+      "title": "Poetry Corner: Ode to an Old Machine",
+      "author": "Isabella Savin",
+      "pages": [35]
+    },
+     {
+      "id": "poetry-corner-2",
+      "title": "Poetry Corner: The Meadow",
+      "author": "Katherine Faulkner",
+      "pages": [36]
+    },
+    {
+      "id": "short-stories-1",
+      "title": "Short Stories: Schatzi",
+      "author": "Geneviève Helleringer, Jayroop Ramesh, Puyu Wang",
+      "pages": [37]
+    },
+    {
+      "id": "short-stories-2",
+      "title": "Short Stories: Serenity",
+      "author": "Jayroop Ramesh",
+      "pages": [39]
+    },
+    {
+      "id": "short-stories-3",
+      "title": "Short Stories: Silver Age",
+      "author": "Puyu Wang",
+      "pages": [42]
+    }, 
+    {
+      "id": "sophies-puzzle-pandemonium",
+      "title": "Sophie's Puzzle Pandemonium",
+      "author": "Sophie Brixton",
+      "pages": [47]
+    },
+    {
+      "id": "meet-the-team",
+      "title": "Meet the Team",
+      "author": "The Editorial Team",
+      "pages": [51]
+    }
+  ]
+}
