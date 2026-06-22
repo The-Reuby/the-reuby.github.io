@@ -31,7 +31,7 @@ const editorialTeams: Team[] = Object.values(
   .sort((a, b) => Number(b.year) - Number(a.year));
 
 export const Contributors = () => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   // Direction of the last navigation, so the incoming member slides in from the
   // matching side (1 = forward/right, -1 = back/left).
@@ -449,25 +449,48 @@ export const Contributors = () => {
               </div>
 
               {/* Story */}
-              <div className="lg:w-[58%] flex flex-col min-h-0 bg-white/10 dark:bg-slate-800/20 backdrop-blur-lg">
+              <div className="lg:w-[58%] flex flex-col min-h-0 bg-gradient-to-br from-white/30 to-white/5 dark:from-slate-800/40 dark:to-slate-900/20 backdrop-blur-lg">
                 <div key={currentMemberIndex} className={`flex-1 min-h-0 p-6 lg:p-9 flex flex-col ${enterAnimation}`}>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-3 leading-tight tracking-tight">
+                  {/* Eyebrow + index */}
+                  <div className="flex items-center justify-between mb-4 pr-10 lg:pr-12">
+                    <p className="text-[11px] uppercase tracking-[0.22em] font-bold text-primary-600 dark:text-primary-400">
+                      Meet the Team
+                    </p>
+                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 tabular-nums">
+                      {String(currentMemberIndex + 1).padStart(2, '0')}<span className="text-slate-300 dark:text-slate-600"> / {String(members.length).padStart(2, '0')}</span>
+                    </p>
+                  </div>
+
+                  {/* Name + accent */}
+                  <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-[1.05] tracking-tight">
                     {currentMember.name}
                   </h1>
+                  <div className="mt-3 h-1.5 w-12 bg-primary-500 rounded-full"></div>
 
-                  {currentMember.role && (
-                    <div className="inline-flex items-center px-4 py-2 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-semibold mb-2.5 w-fit shadow-sm border border-primary-200/60 dark:border-primary-700/40">
-                      <div className="w-2 h-2 bg-primary-500 rounded-full mr-2.5"></div>
-                      {currentMember.role}
-                    </div>
-                  )}
+                  {/* Meta rows */}
+                  <div className="mt-4 space-y-2">
+                    {currentMember.role && (
+                      <div className="flex items-center gap-2.5 text-sm">
+                        <svg className="w-4 h-4 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.36 4.18a1 1 0 00.95.69h4.4c.96 0 1.36 1.24.58 1.81l-3.56 2.59a1 1 0 00-.36 1.12l1.36 4.18c.3.92-.75 1.69-1.54 1.12l-3.56-2.59a1 1 0 00-1.18 0l-3.56 2.59c-.79.57-1.84-.2-1.54-1.12l1.36-4.18a1 1 0 00-.36-1.12L1.4 9.61c-.78-.57-.38-1.81.58-1.81h4.4a1 1 0 00.95-.69L9.05 2.93z" />
+                        </svg>
+                        <span className="font-semibold text-primary-700 dark:text-primary-300">{currentMember.role}</span>
+                      </div>
+                    )}
+                    {currentMember.programme && (
+                      <div className="flex items-start gap-2.5 text-sm">
+                        <svg className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 2L1 6l9 4 7.5-3.33V12a1 1 0 102 0V6L10 2z" />
+                          <path d="M4 10.4V13c0 1.1 2.7 2.5 6 2.5s6-1.4 6-2.5v-2.6l-6 2.67-6-2.67z" />
+                        </svg>
+                        <span className="text-slate-600 dark:text-slate-400 font-medium">{currentMember.programme}</span>
+                      </div>
+                    )}
+                  </div>
 
-                  {currentMember.programme && (
-                    <p className="text-slate-600 dark:text-slate-400 font-medium mb-5">{currentMember.programme}</p>
-                  )}
-
-                  <div className="relative flex-1 min-h-0 overflow-y-auto bg-white/60 dark:bg-slate-900/60 rounded-xl p-5 lg:p-6 shadow-inner border border-slate-200/40 dark:border-slate-700/40">
-                    <span className="absolute -top-1 left-3 text-6xl leading-none text-primary-300/50 dark:text-primary-700/40 font-serif select-none">“</span>
+                  {/* Bio */}
+                  <div className="relative flex-1 min-h-0 overflow-y-auto mt-5 bg-white/70 dark:bg-slate-900/60 rounded-2xl p-5 lg:p-6 pt-7 shadow-inner border border-slate-200/50 dark:border-slate-700/40">
+                    <span className="absolute top-1 left-4 text-6xl leading-none text-primary-300/60 dark:text-primary-700/50 font-serif select-none">“</span>
                     <p className="relative text-slate-700 dark:text-slate-300 leading-relaxed text-base lg:text-lg">
                       {currentMember.bio}
                     </p>
