@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import contributorsData from '../data/contributors.json';
 
 interface Contributor {
@@ -31,8 +31,11 @@ const editorialTeams: Team[] = Object.values(
   .sort((a, b) => Number(b.year) - Number(a.year));
 
 export const Contributors = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
+  // Direction of the last navigation, so the incoming member slides in from the
+  // matching side (1 = forward/right, -1 = back/left).
+  const [direction, setDirection] = useState(1);
 
   // The newest year is the current editorial team; every older year is "past".
   const latestTeam = editorialTeams[0];
@@ -44,27 +47,59 @@ export const Contributors = () => {
   const selectedPastTeam = pastTeams[selectedPastIndex];
 
   const openModal = () => {
-    setIsModalOpen(true);
+    setDirection(1);
     setCurrentMemberIndex(0);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
   };
 
-  const nextMember = () => {
-    if (currentMemberIndex < members.length - 1) {
-      setCurrentMemberIndex(currentMemberIndex + 1);
-    }
+  const goToMember = (index: number) => {
+    if (index < 0 || index > members.length - 1) return;
+    setDirection(index >= currentMemberIndex ? 1 : -1);
+    setCurrentMemberIndex(index);
   };
 
-  const prevMember = () => {
-    if (currentMemberIndex > 0) {
-      setCurrentMemberIndex(currentMemberIndex - 1);
-    }
-  };
+  const nextMember = () => goToMember(currentMemberIndex + 1);
+  const prevMember = () => goToMember(currentMemberIndex - 1);
+
+  // Keyboard navigation + body scroll lock while the modal is open.
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModal();
+      else if (e.key === 'ArrowRight') nextMember();
+      else if (e.key === 'ArrowLeft') prevMember();
+    };
+
+    window.addEventListener('keydown', handleKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = previousOverflow;
+    };
+    // currentMemberIndex is included so the handlers see the latest index.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModalOpen, currentMemberIndex, members.length]);
 
   const currentMember = members[currentMemberIndex];
+  const enterAnimation = direction >= 0 ? 'animate-enter-right' : 'animate-enter-left';
+
+  const initials = (name: string) =>
+    name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
+
+  // Transparent freeze-frame cutout lives alongside the original photo.
+  const cutoutSrc = (image?: string | null) =>
+    image ? `/images/people/cutout/${image.split('/').pop()!.replace(/\.[^.]+$/, '')}.png` : undefined;
+
+  // These members are shown as full photos — their shots interact with the
+  // environment (the Reuben dinosaur), which a cutout would throw away.
+  const noCutout = new Set(['Katherine Faulkner', 'Megan Phillips']);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -101,12 +136,13 @@ export const Contributors = () => {
             <div className="flex items-center justify-center">
               <button
                 onClick={openModal}
-                className="hidden sm:inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:from-primary-700 hover:to-primary-800"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:from-primary-700 hover:to-primary-800"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Introducing the Team
+                <span className="ml-3 text-xs font-semibold text-white/70">{members.length} members</span>
               </button>
             </div>
           </div>
@@ -318,126 +354,195 @@ export const Contributors = () => {
           ></div>
 
           {/* Modal panel */}
-          <div className="relative w-full max-w-7xl h-[600px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-2xl overflow-hidden border border-white/30 dark:border-slate-700/50">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${latestTeam?.issue ?? 'Editorial team'} — meet the team`}
+            className="relative w-full max-w-6xl h-[90vh] lg:h-[660px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-3xl overflow-hidden border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
+          >
             {/* Close button */}
             <button
               onClick={closeModal}
-              className="absolute top-5 right-5 z-20 p-2.5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl border border-white/30 dark:border-slate-700/30"
+              aria-label="Close"
+              className="absolute top-4 right-4 z-30 p-2.5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl border border-white/30 dark:border-slate-700/30"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            {/* Main content */}
-            <div className="flex flex-col lg:flex-row h-full">
-              {/* Photo section - Full height, immersive */}
-              <div className="lg:w-2/5 h-48 lg:h-full relative overflow-hidden bg-slate-100 dark:bg-slate-800">
-                {currentMember.image ? (
-                  <div className="relative w-full h-full group">
-                    <img 
-                      src={currentMember.image} 
-                      alt={currentMember.name} 
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                    />
-                    {/* Subtle overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/15"></div>
-                  </div>
+            {/* Stage — the focused member */}
+            <div className="flex flex-col lg:flex-row flex-1 min-h-0">
+              {/* Portrait — freeze-frame "introduce myself": cutout pops off its own slightly-blurred photo */}
+              <div key={currentMember.name} className="lg:w-[42%] h-80 lg:h-auto relative overflow-hidden bg-slate-900">
+                {/* Background photo: slightly blurred behind a cutout, or the full sharp shot for environment portraits */}
+                {currentMember.image && (
+                  <img
+                    src={currentMember.image}
+                    alt={noCutout.has(currentMember.name) ? currentMember.name : ''}
+                    aria-hidden={!noCutout.has(currentMember.name)}
+                    className={`absolute inset-0 w-full h-full object-cover object-center animate-fade-in ${
+                      noCutout.has(currentMember.name) ? 'saturate-105' : 'blur-[2px] brightness-90 saturate-110'
+                    }`}
+                  />
+                )}
+                {/* Cutout members get the warm duotone + halftone poster grade; full photos stay clear */}
+                {noCutout.has(currentMember.name) ? (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"></div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800">
-                    <div className="text-center">
-                      <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-400 dark:bg-slate-600 flex items-center justify-center shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <p className="text-slate-500 dark:text-slate-400 font-medium">Team Member</p>
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary-950/75 via-primary-900/15 to-primary-700/5"></div>
+                    <div className="absolute inset-0 bg-amber-400/15 mix-blend-soft-light"></div>
+                    <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(circle,_rgba(0,0,0,0.45)_1px,_transparent_1.3px)] [background-size:7px_7px]"></div>
+                  </>
+                )}
+
+                {/* Giant ghost first-name behind the figure (cutout members only) */}
+                {currentMember.image && !noCutout.has(currentMember.name) && (
+                  <span
+                    aria-hidden
+                    className="absolute z-[6] inset-x-0 top-5 text-center font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none pointer-events-none text-transparent [-webkit-text-stroke:2px_rgba(255,255,255,0.45)] text-[4.5rem] lg:text-[6rem]"
+                  >
+                    {currentMember.name.split(' ')[0]}
+                  </span>
+                )}
+
+                {/* Sharp cutout, aligned to the same crop so the figure leaps off the blur */}
+                {currentMember.image ? (
+                  !noCutout.has(currentMember.name) && (
+                    <img
+                      src={cutoutSrc(currentMember.image)}
+                      alt={currentMember.name}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                      className="absolute inset-0 w-full h-full object-cover object-center z-10 drop-shadow-[0_18px_22px_rgba(0,0,0,0.5)] animate-pop-in"
+                    />
+                  )
+                ) : (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center">
+                    <div className="w-28 h-28 rounded-full bg-white/15 ring-4 ring-white/40 flex items-center justify-center text-4xl font-black text-white">
+                      {initials(currentMember.name)}
                     </div>
                   </div>
                 )}
+
+                {/* Stickers */}
+                <span className="absolute top-4 left-4 z-30 -rotate-3 bg-primary-600 text-white text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded shadow-md">
+                  The Reuby · {currentMemberIndex + 1}/{members.length}
+                </span>
+                <span className="absolute top-4 right-14 z-30 rotate-3 bg-amber-400 text-slate-900 text-[9px] font-extrabold uppercase tracking-[0.15em] leading-tight px-2 py-1 rounded shadow-md text-right">
+                  Meet<br />the team
+                </span>
+
+                {/* Name plate */}
+                <div className="absolute z-30 inset-x-0 bottom-5 lg:bottom-6 flex flex-col items-center px-4">
+                  <div className="bg-white rounded-2xl px-5 py-2 shadow-2xl -rotate-1 max-w-full">
+                    <p className="text-lg lg:text-2xl font-black text-slate-900 uppercase tracking-tight leading-tight text-center">
+                      {currentMember.name}
+                    </p>
+                  </div>
+                  {currentMember.role && (
+                    <span className="mt-2 rotate-1 bg-amber-400 text-slate-900 text-[11px] lg:text-xs font-bold uppercase tracking-wide px-3 py-1 rounded shadow-md max-w-[92%] truncate">
+                      {currentMember.role}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Content section */}
-              <div className="lg:w-3/5 flex flex-col h-full bg-white/10 dark:bg-slate-800/20 backdrop-blur-lg">
-                <div className="flex-1 p-6 lg:p-10 flex flex-col justify-center">
-                  {/* Name */}
-                  <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-3 leading-tight tracking-tight">
+              {/* Story */}
+              <div className="lg:w-[58%] flex flex-col min-h-0 bg-white/10 dark:bg-slate-800/20 backdrop-blur-lg">
+                <div key={currentMemberIndex} className={`flex-1 min-h-0 p-6 lg:p-9 flex flex-col ${enterAnimation}`}>
+                  <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-3 leading-tight tracking-tight">
                     {currentMember.name}
                   </h1>
-                  
-                  {/* Role tag */}
+
                   {currentMember.role && (
-                    <div className="inline-flex items-center px-5 py-2.5 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-semibold mb-3 w-fit shadow-sm border border-primary-200/60 dark:border-primary-700/40">
+                    <div className="inline-flex items-center px-4 py-2 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 rounded-full text-sm font-semibold mb-2.5 w-fit shadow-sm border border-primary-200/60 dark:border-primary-700/40">
                       <div className="w-2 h-2 bg-primary-500 rounded-full mr-2.5"></div>
                       {currentMember.role}
                     </div>
                   )}
 
-                  {/* Programme / study subject */}
                   {currentMember.programme && (
-                    <p className="text-slate-600 dark:text-slate-400 font-medium mb-7">{currentMember.programme}</p>
+                    <p className="text-slate-600 dark:text-slate-400 font-medium mb-5">{currentMember.programme}</p>
                   )}
 
-                  {/* Bio */}
-                  <div className="flex-1 overflow-y-auto max-h-80 bg-white/60 dark:bg-slate-900/60 rounded-xl p-5 shadow-inner border border-slate-200/40 dark:border-slate-700/40">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-base lg:text-lg">
+                  <div className="relative flex-1 min-h-0 overflow-y-auto bg-white/60 dark:bg-slate-900/60 rounded-xl p-5 lg:p-6 shadow-inner border border-slate-200/40 dark:border-slate-700/40">
+                    <span className="absolute -top-1 left-3 text-6xl leading-none text-primary-300/50 dark:text-primary-700/40 font-serif select-none">“</span>
+                    <p className="relative text-slate-700 dark:text-slate-300 leading-relaxed text-base lg:text-lg">
                       {currentMember.bio}
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                {/* Navigation */}
-                <div className="flex items-center justify-between border-t border-white/20 dark:border-slate-700/30 bg-white/10 dark:bg-slate-900/20 backdrop-blur-lg px-6 lg:px-10 py-5">
-                  <button
-                    onClick={prevMember}
-                    disabled={currentMemberIndex === 0}
-                    className={`flex items-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
-                      currentMemberIndex === 0 
-                        ? 'text-slate-400 cursor-not-allowed opacity-50' 
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-md hover:-translate-x-0.5'
-                    }`}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Previous
-                  </button>
+            {/* Avatar dock — every member at a glance; click any face to focus them */}
+            <div className="shrink-0 border-t border-white/25 dark:border-slate-700/40 bg-white/30 dark:bg-slate-900/40 backdrop-blur-xl px-4 lg:px-6 pt-7 pb-8">
+              <div className="flex items-center justify-center gap-2 lg:gap-4">
+                {/* Prev */}
+                <button
+                  onClick={prevMember}
+                  disabled={currentMemberIndex === 0}
+                  aria-label="Previous member"
+                  className="shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 shadow-md hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 hover:-translate-x-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-x-0 transition-all duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
-                  {/* Progress indicator */}
-                  <div className="flex items-center space-x-5">
-                    <span className="text-sm text-slate-600 dark:text-slate-400 font-semibold px-3 py-1.5 bg-white/60 dark:bg-slate-800/60 rounded-lg shadow-sm">
-                      {currentMemberIndex + 1} of {members.length}
-                    </span>
-                    <div className="flex items-center space-x-2.5">
-                      {members.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentMemberIndex(index)}
-                          className={`h-2.5 rounded-full transition-all duration-300 hover:scale-125 ${
-                            index === currentMemberIndex 
-                              ? 'bg-primary-600 dark:bg-primary-400 w-7 shadow-md' 
-                              : 'bg-slate-300 dark:bg-slate-600 hover:bg-primary-400 dark:hover:bg-primary-500 w-2.5'
+                {/* Faces */}
+                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-5 max-w-2xl">
+                  {members.map((person, index) => {
+                    const active = index === currentMemberIndex;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => goToMember(index)}
+                        aria-current={active}
+                        aria-label={person.name}
+                        title={person.name}
+                        className="group relative shrink-0 focus:outline-none"
+                      >
+                        <span
+                          className={`block rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 font-bold flex items-center justify-center transition-all duration-300 ease-out ${
+                            active
+                              ? 'w-14 h-14 lg:w-16 lg:h-16 ring-4 ring-primary-500 ring-offset-2 ring-offset-white/40 dark:ring-offset-slate-900/40 shadow-xl -translate-y-1 scale-105'
+                              : 'w-11 h-11 lg:w-12 lg:h-12 ring-2 ring-white/50 dark:ring-slate-700/60 opacity-65 grayscale group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:ring-primary-300'
                           }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={nextMember}
-                    disabled={currentMemberIndex === members.length - 1}
-                    className={`flex items-center px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
-                      currentMemberIndex === members.length - 1 
-                        ? 'text-slate-400 cursor-not-allowed opacity-50' 
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-md hover:translate-x-0.5'
-                    }`}
-                  >
-                    Next
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                        >
+                          {person.image ? (
+                            <img src={person.image} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="flex items-center justify-center w-full h-full text-sm">{initials(person.name)}</span>
+                          )}
+                        </span>
+                        {/* Name label: always shown for active, on hover for the rest */}
+                        <span
+                          className={`pointer-events-none absolute left-1/2 -translate-x-1/2 -bottom-5 whitespace-nowrap text-[11px] font-semibold transition-all duration-200 ${
+                            active
+                              ? 'text-primary-700 dark:text-primary-300 opacity-100'
+                              : 'text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100'
+                          }`}
+                        >
+                          {person.name.split(' ')[0]}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
+
+                {/* Next */}
+                <button
+                  onClick={nextMember}
+                  disabled={currentMemberIndex === members.length - 1}
+                  aria-label="Next member"
+                  className="shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 shadow-md hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 hover:translate-x-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-x-0 transition-all duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
