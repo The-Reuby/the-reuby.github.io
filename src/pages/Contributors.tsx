@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { type TouchEvent as ReactTouchEvent, useEffect, useRef, useState } from 'react';
 import contributorsData from '../data/contributors.json';
 
 interface Contributor {
@@ -39,7 +39,7 @@ const cutoutSrc = (image?: string | null) =>
 const noCutout = new Set(['Katherine Faulkner']);
 
 export const Contributors = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   // Direction of the last navigation, so the incoming member slides in from the
   // matching side (1 = forward/right, -1 = back/left).
@@ -116,6 +116,25 @@ export const Contributors = () => {
       activeFaceRef.current?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
     }
   }, [currentMemberIndex, isModalOpen]);
+
+  // Render a purpose-built full-screen layout on phones, the card on desktop.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // Swipe left/right on the hero to move between members.
+  const touchStartX = useRef(0);
+  const onHeroTouchStart = (e: ReactTouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const onHeroTouchEnd = (e: ReactTouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (dx > 50) prevMember();
+    else if (dx < -50) nextMember();
+  };
 
   const currentMember = members[currentMemberIndex];
   const enterAnimation = direction >= 0 ? 'animate-enter-right' : 'animate-enter-left';
@@ -366,8 +385,8 @@ export const Contributors = () => {
         </section>
       </div>
 
-            {/* Team Introduction Modal */}
-      {isModalOpen && (
+            {/* Team Introduction Modal — desktop card */}
+      {isModalOpen && !isMobile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
           {/* Background overlay */}
           <div
@@ -597,7 +616,169 @@ export const Contributors = () => {
         </div>
       )}
 
+      {/* Team Introduction Modal — full-screen mobile experience */}
+      {isModalOpen && isMobile && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${latestTeam?.issue ?? 'Editorial team'} — meet the team`}
+          className="fixed inset-0 z-50 bg-slate-950 flex flex-col animate-fade-in"
+        >
+          {/* Hero — freeze-frame figure, swipe to navigate */}
+          <div
+            key={currentMember.name}
+            className="relative flex-1 min-h-0 overflow-hidden"
+            onTouchStart={onHeroTouchStart}
+            onTouchEnd={onHeroTouchEnd}
+          >
+            {/* Background photo */}
+            {currentMember.image && (
+              <img
+                src={currentMember.image}
+                alt={noCutout.has(currentMember.name) ? currentMember.name : ''}
+                aria-hidden={!noCutout.has(currentMember.name)}
+                className={`absolute inset-0 w-full h-full object-cover object-top animate-fade-in ${
+                  noCutout.has(currentMember.name) ? 'saturate-105' : 'blur-[2px] brightness-90 saturate-110'
+                }`}
+              />
+            )}
+            {/* Grade */}
+            {noCutout.has(currentMember.name) ? (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25"></div>
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-950/70 via-primary-900/10 to-black/30"></div>
+                <div className="absolute inset-0 bg-amber-400/10 mix-blend-soft-light"></div>
+              </>
+            )}
+            {/* Sharp cutout */}
+            {currentMember.image ? (
+              !noCutout.has(currentMember.name) && (
+                <img
+                  src={cutoutSrc(currentMember.image)}
+                  alt={currentMember.name}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  className="absolute inset-0 w-full h-full object-cover object-top z-10 drop-shadow-[0_14px_22px_rgba(0,0,0,0.45)] animate-fade-in"
+                />
+              )
+            ) : (
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-white/15 ring-4 ring-white/40 flex items-center justify-center text-4xl font-black text-white">
+                  {initials(currentMember.name)}
+                </div>
+              </div>
+            )}
+
+            {/* Top bar: story progress + close */}
+            <div className="absolute top-0 inset-x-0 z-40 px-4 pt-3 pb-4 bg-gradient-to-b from-black/65 via-black/20 to-transparent">
+              <div className="flex items-center gap-1.5">
+                {members.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goToMember(i)}
+                    aria-label={`Go to member ${i + 1}`}
+                    className="h-1 flex-1 rounded-full bg-white/30 overflow-hidden"
+                  >
+                    <span className={`block h-full bg-white rounded-full transition-all duration-300 ${i <= currentMemberIndex ? 'w-full' : 'w-0'}`}></span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/85 drop-shadow">
+                  Meet the Team
+                </span>
+                <button
+                  onClick={closeModal}
+                  aria-label="Close"
+                  className="p-1.5 rounded-full bg-white/20 text-white backdrop-blur-sm active:bg-white/35 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Swipe affordance chevrons */}
+            {currentMemberIndex > 0 && (
+              <div className="absolute left-1 top-1/2 -translate-y-1/2 z-20 text-white/45 pointer-events-none">
+                <svg className="w-6 h-6 drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+              </div>
+            )}
+            {currentMemberIndex < members.length - 1 && (
+              <div className="absolute right-1 top-1/2 -translate-y-1/2 z-20 text-white/45 pointer-events-none">
+                <svg className="w-6 h-6 drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+              </div>
+            )}
+
+            {/* Name overlay */}
+            <div key={`name-${currentMemberIndex}`} className="absolute bottom-0 inset-x-0 z-30 px-5 pb-8 pt-20 bg-gradient-to-t from-black/85 via-black/35 to-transparent animate-fade-in">
+              <h2 className="text-[2rem] font-black uppercase text-white leading-[0.95] tracking-tight drop-shadow-lg">
+                {currentMember.name}
+              </h2>
+              {currentMember.role && (
+                <span className="inline-block mt-2.5 -rotate-1 bg-amber-400 text-slate-900 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded shadow-md max-w-full truncate">
+                  {currentMember.role}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom sheet: programme + bio + faces */}
+          <div className="relative z-30 h-[38%] rounded-t-3xl bg-white dark:bg-slate-900 shadow-[0_-12px_30px_rgba(0,0,0,0.5)] flex flex-col">
+            <div className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-slate-300 dark:bg-slate-700 shrink-0"></div>
+            <div key={`bio-${currentMemberIndex}`} className={`flex-1 min-h-0 overflow-y-auto scrollbar-hide px-5 pt-3 pb-3 ${enterAnimation}`}>
+              {currentMember.programme && (
+                <div className="flex items-start gap-2.5 text-sm mb-3">
+                  <svg className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2L1 6l9 4 7.5-3.33V12a1 1 0 102 0V6L10 2z" />
+                    <path d="M4 10.4V13c0 1.1 2.7 2.5 6 2.5s6-1.4 6-2.5v-2.6l-6 2.67-6-2.67z" />
+                  </svg>
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">{currentMember.programme}</span>
+                </div>
+              )}
+              <div className="relative bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 pt-6 border border-slate-200/60 dark:border-slate-700/40">
+                <span className="absolute top-0 left-3 text-5xl leading-none text-primary-300/60 dark:text-primary-700/50 font-serif select-none">“</span>
+                <p className="relative text-slate-700 dark:text-slate-300 leading-relaxed text-[15px]">
+                  {currentMember.bio}
+                </p>
+              </div>
+            </div>
+
+            {/* Face strip */}
+            <div className="shrink-0 border-t border-slate-200/70 dark:border-slate-700/50 px-3 py-3">
+              <div className="flex items-center overflow-x-auto scrollbar-hide gap-3 px-1">
+                {members.map((person, index) => {
+                  const active = index === currentMemberIndex;
+                  return (
+                    <button
+                      key={index}
+                      ref={active ? activeFaceRef : undefined}
+                      onClick={() => goToMember(index)}
+                      aria-current={active}
+                      aria-label={person.name}
+                      className="shrink-0 focus:outline-none"
+                    >
+                      <span className={`block rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/50 transition-all duration-300 ${
+                        active
+                          ? 'w-12 h-12 ring-[3px] ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 shadow-lg'
+                          : 'w-10 h-10 ring-2 ring-slate-200 dark:ring-slate-700 opacity-60 grayscale'
+                      }`}>
+                        {person.image ? (
+                          <img src={person.image} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="flex items-center justify-center w-full h-full text-xs font-bold text-primary-700 dark:text-primary-300">{initials(person.name)}</span>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
-}; 
+};
