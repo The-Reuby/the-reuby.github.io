@@ -54,6 +54,10 @@ export const PdfPageViewer = ({
   // Latest viewed page, read inside the (long-lived) render observer to decide
   // render priority without re-creating the observer on every page change.
   const currentPageRef = useRef(initialPage);
+  // The user's intended page, used to restore position across a view-mode
+  // toggle. Unlike `currentPage` it is NOT overwritten by the double-mode
+  // spread-start reporting, so repeated toggling stays put instead of drifting.
+  const anchorPageRef = useRef(initialPage);
 
   // Per-page render bookkeeping: canvas + in-flight render task.
   type PageEntry = { canvas?: HTMLCanvasElement; task?: { cancel: () => void }; rendered?: boolean };
@@ -295,6 +299,30 @@ export const PdfPageViewer = ({
     attempt();
   }, [viewMode, currentIssue]);
 
+  // Compute the page closest to the centre of the viewport right now (reads the
+  // DOM, so it's accurate even after a fast scroll the observer didn't track).
+  const computeVisiblePage = useCallback(() => {
+    const container = pageContainerRef.current;
+    if (!container) return null;
+    const cRect = container.getBoundingClientRect();
+    const centerY = cRect.top + cRect.height / 2;
+    let bestPage: number | null = null;
+    let bestDist = Infinity;
+    container.querySelectorAll<HTMLElement>('[data-page]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < cRect.top || r.top > cRect.bottom) return; // out of view
+      const dist = Math.abs(r.top + r.height / 2 - centerY);
+      const spreadStart = parseInt(el.getAttribute('data-spread-start') || '0', 10);
+      const pageNum = parseInt(el.getAttribute('data-page') || '0', 10);
+      const num = viewMode === 'double' && spreadStart > 0 ? spreadStart : pageNum;
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestPage = num;
+      }
+    });
+    return bestPage;
+  }, [viewMode]);
+
   // React to initialPage changes coming from the parent (TOC clicks, URL, a
   // random-article jump). Jump instantly so we don't scroll through (and render)
   // every page on the way.
@@ -302,6 +330,7 @@ export const PdfPageViewer = ({
     if (initialPage !== currentPage) {
       setCurrentPage(initialPage);
       currentPageRef.current = initialPage;
+      anchorPageRef.current = initialPage;
       if (docReady) {
         renderPage(initialPage); // paint the target first
         scrollToPage(initialPage, false);
@@ -314,11 +343,33 @@ export const PdfPageViewer = ({
   useEffect(() => {
     if (docReady) {
       currentPageRef.current = initialPage;
+      anchorPageRef.current = initialPage;
       renderPage(initialPage); // prioritise the landing page
       if (initialPage > 1) setTimeout(() => scrollToPage(initialPage, false), 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docReady]);
+
+  // Switching single <-> double reflows the pages into a completely different
+  // layout, so the browser's preserved scroll offset now points at the wrong
+  // page. Re-assert the page we were on after the new layout commits (rAF), and
+  // a couple more times to defeat any lazy-layout settling.
+  useEffect(() => {
+    if (!docReady) return;
+    const page = anchorPageRef.current; // stable target, not the spread-start
+    isScrollingRef.current = true; // suppress page-tracking while we restore
+    const timers: number[] = [];
+    const raf = requestAnimationFrame(() => {
+      scrollToPage(page, false);
+      timers.push(window.setTimeout(() => scrollToPage(page, false), 180));
+      timers.push(window.setTimeout(() => scrollToPage(page, false), 450));
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      timers.forEach(clearTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
 
   // Track user vs programmatic scrolling.
   useEffect(() => {
@@ -331,6 +382,19 @@ export const PdfPageViewer = ({
         scrollTimeoutRef.current = window.setTimeout(() => {
           userScrollingRef.current = false;
           scrollTimeoutRef.current = null;
+          // When the user stops scrolling, read the actually-visible page so our
+          // anchor/indicator are accurate (the observer can miss fast scrolls).
+          if (!isScrollingRef.current) {
+            const p = computeVisiblePage();
+            if (p !== null) {
+              anchorPageRef.current = p;
+              currentPageRef.current = p;
+              if (p !== currentPage) {
+                setCurrentPage(p);
+                onPageChange?.(p);
+              }
+            }
+          }
         }, 150);
       }
     };
@@ -339,7 +403,8 @@ export const PdfPageViewer = ({
       container.removeEventListener('scroll', handleScroll);
       if (scrollTimeoutRef.current !== null) window.clearTimeout(scrollTimeoutRef.current);
     };
-  }, [docReady]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docReady, computeVisiblePage, onPageChange]);
 
   // Keyboard navigation (mirrors PageViewer).
   useEffect(() => {
