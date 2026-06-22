@@ -368,7 +368,7 @@ export const Contributors = () => {
 
             {/* Team Introduction Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
           {/* Background overlay */}
           <div
             className="fixed inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
@@ -380,7 +380,7 @@ export const Contributors = () => {
             role="dialog"
             aria-modal="true"
             aria-label={`${latestTeam?.issue ?? 'Editorial team'} — meet the team`}
-            className="relative w-full max-w-6xl h-[94vh] sm:h-[92vh] lg:h-[720px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-2xl lg:rounded-3xl overflow-hidden border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
+            className="relative w-full max-w-6xl h-full sm:h-[92vh] lg:h-[720px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-none sm:rounded-2xl lg:rounded-3xl overflow-hidden border-0 sm:border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
           >
             {/* Close button */}
             <button
