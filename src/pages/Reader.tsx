@@ -170,7 +170,20 @@ export const Reader = () => {
       lastNavigatedPageRef.current = currentPage;
     }
   }, [currentPage, location.search, navigate, params]);
-  
+
+  // Sync the other way too: when the URL's page changes externally (e.g. a
+  // "random article" jump that lands on the issue we're already viewing), move
+  // the reader to it. Without this, same-issue jumps would be ignored because
+  // the component stays mounted and currentPage keeps its old value.
+  useEffect(() => {
+    const urlPage = pageParam ? parseInt(pageParam, 10) : NaN;
+    if (!isNaN(urlPage) && urlPage > 0 && urlPage !== currentPage) {
+      setCurrentPage(urlPage);
+      lastNavigatedPageRef.current = urlPage;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageParam]);
+
   // Handle article click from TOC
   const handleArticleClick = (article: Article) => {
     if (article.pages.length > 0) {

@@ -5,8 +5,27 @@ import { getAssetPath } from '../utils/pathUtils';
 
 // Small, shared caches so "Read a random article" is instant after the first
 // load (the issue list + each issue's article metadata are tiny JSON files).
-let issuesCache: { slug: string }[] | null = null;
-const articleMetaCache = new Map<string, { pages?: number[] }[]>();
+type IssueLite = { slug: string; name: string; pdfUrl?: string };
+type ArticleLite = { title?: string; pages?: number[] };
+let issuesCache: IssueLite[] | null = null;
+const articleMetaCache = new Map<string, ArticleLite[]>();
+
+// Background-load just the bytes for one page of an issue's PDF (range requests
+// via pdf.js), warming the cache before the reader opens. pdf.js is imported
+// dynamically so its ~1 MB worker stays out of the main bundle.
+const preloadPdfPage = async (pdfUrl: string | undefined, appPage: number) => {
+  if (!pdfUrl) return;
+  try {
+    const { loadPdf } = await import('../utils/pdf');
+    const href = /^https?:\/\//.test(pdfUrl) ? pdfUrl : getAssetPath(pdfUrl);
+    const task = loadPdf(href);
+    const pdf = await task.promise;
+    await pdf.getPage(appPage + 1); // app page -> PDF page (cover = app 0 -> PDF 1)
+    pdf.destroy();
+  } catch {
+    // Ignore — the reader will load it normally.
+  }
+};
 
 const prefetchRandomData = async () => {
   try {
@@ -37,14 +56,19 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const pathname = location.pathname;
 
+  // Loading-modal state for the "random article" reveal.
+  const [randomTarget, setRandomTarget] = useState<
+    { slug: string; issue: string; title: string; page: number } | null
+  >(null);
+  const [revealStep, setRevealStep] = useState(0);
+
   // Warm the cache as soon as the nav mounts so the first click is instant.
   useEffect(() => {
     prefetchRandomData();
   }, []);
 
-  // Jump to a random article: pick a random issue, then a random article within
-  // it, and open the reader at that article's first page. Uses the prefetched
-  // cache when available (instant), otherwise fetches on demand.
+  // Pick a random issue + article, open the loading modal, prefetch the PDF, and
+  // let the reveal timeline (below) take the reader there.
   const goToRandomArticle = async () => {
     try {
       let issues = issuesCache;
@@ -59,7 +83,8 @@ export const Navbar = () => {
       if (!articles) {
         try {
           const r = await fetch(getAssetPath(`/data/${issue.slug}.json`));
-          articles = r.ok ? (await r.json()).articles ?? [] : [];
+          const data = r.ok ? await r.json() : {};
+          articles = (data.articles ?? []) as ArticleLite[];
         } catch {
           articles = [];
         }
@@ -67,17 +92,42 @@ export const Navbar = () => {
       }
 
       let page = 1;
+      let title = '';
       if (articles.length) {
         const article = articles[Math.floor(Math.random() * articles.length)];
         page = article.pages?.[0] && article.pages[0] > 0 ? article.pages[0] : 1;
+        title = article.title ?? '';
       }
 
       setIsMenuOpen(false);
+      setRevealStep(0);
+      setRandomTarget({ slug: issue.slug, issue: issue.name, title: title || issue.name, page });
+
+      // Actually load the target page in the background while the modal animates,
+      // so by the time we navigate the bytes are already fetched. Wait for the
+      // load (capped) AND a minimum animation time, whichever is longer.
+      const minAnimation = new Promise<void>((r) => setTimeout(r, 2400));
+      const maxWait = new Promise<void>((r) => setTimeout(r, 9000));
+      await minAnimation;
+      await Promise.race([preloadPdfPage(issue.pdfUrl, page), maxWait]);
+
       navigate(`/reader?issue=${issue.slug}&page=${page}`);
+      setRandomTarget(null);
     } catch (err) {
       console.error('Could not pick a random article', err);
     }
   };
+
+  // Reveal timeline: stagger the issue / article / page lines.
+  useEffect(() => {
+    if (!randomTarget) return;
+    const timers = [
+      window.setTimeout(() => setRevealStep(1), 550),
+      window.setTimeout(() => setRevealStep(2), 1150),
+      window.setTimeout(() => setRevealStep(3), 1750),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [randomTarget]);
 
   const DiceIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -91,6 +141,7 @@ export const Navbar = () => {
   );
 
   return (
+    <>
     <nav className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-[60]">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -293,5 +344,52 @@ export const Navbar = () => {
         </div>
       </div>
     </nav>
+
+    {/* Random-article loading modal */}
+    {randomTarget && (
+      <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-slate-800 shadow-2xl p-8 text-center overflow-hidden animate-pop-in">
+          {/* decorative glow */}
+          <div className="pointer-events-none absolute -top-16 -right-16 w-40 h-40 rounded-full bg-primary-500/10 blur-2xl"></div>
+
+          {/* spinning dice */}
+          <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-white flex items-center justify-center shadow-lg animate-spin [animation-duration:1.6s]">
+            <DiceIcon className="w-8 h-8" />
+          </div>
+
+          <p className="text-lg font-bold text-slate-800 dark:text-white">
+            Taking you to a random article<span className="animate-pulse">…</span>
+          </p>
+
+          <div className="mt-6 space-y-3 text-left min-h-[7rem]">
+            {revealStep >= 1 && (
+              <div className="animate-enter-right">
+                <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-slate-400">Issue</p>
+                <p className="font-semibold text-primary-700 dark:text-primary-300 leading-snug">{randomTarget.issue}</p>
+              </div>
+            )}
+            {revealStep >= 2 && (
+              <div className="animate-enter-right">
+                <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-slate-400">Article</p>
+                <p className="font-semibold text-slate-800 dark:text-white leading-snug">{randomTarget.title}</p>
+              </div>
+            )}
+            {revealStep >= 3 && (
+              <div className="animate-enter-right">
+                <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-slate-400">Page</p>
+                <p className="font-semibold text-slate-800 dark:text-white">{randomTarget.page}</p>
+              </div>
+            )}
+          </div>
+
+          {/* indeterminate loading bar — runs until the page has loaded */}
+          <div className="relative mt-6 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+            <div className="absolute inset-y-0 left-0 w-1/4 rounded-full bg-gradient-to-r from-primary-500 to-primary-700 animate-indeterminate"></div>
+          </div>
+          <p className="mt-3 text-xs text-slate-400">Loading the page…</p>
+        </div>
+      </div>
+    )}
+    </>
   );
 };

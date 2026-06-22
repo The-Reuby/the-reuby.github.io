@@ -51,6 +51,9 @@ export const PdfPageViewer = ({
   const isScrollingRef = useRef(false);
   const userScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<number | null>(null);
+  // Latest viewed page, read inside the (long-lived) render observer to decide
+  // render priority without re-creating the observer on every page change.
+  const currentPageRef = useRef(initialPage);
 
   // Per-page render bookkeeping: canvas + in-flight render task.
   type PageEntry = { canvas?: HTMLCanvasElement; task?: { cancel: () => void }; rendered?: boolean };
@@ -192,6 +195,11 @@ export const PdfPageViewer = ({
     }
   }, []);
 
+  // Keep the priority ref in sync with the viewed page.
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+
   const releasePage = useCallback((appPage: number) => {
     const state = pageStateRef.current;
     const entry = state.get(appPage);
@@ -210,12 +218,18 @@ export const PdfPageViewer = ({
     renderObserverRef.current?.disconnect();
     renderObserverRef.current = new IntersectionObserver(
       (entries) => {
+        const toRender: number[] = [];
         entries.forEach((e) => {
           const appPage = parseInt((e.target as HTMLElement).getAttribute('data-pdf-page') || '-1', 10);
           if (appPage < 0) return;
-          if (e.isIntersecting) renderPage(appPage);
+          if (e.isIntersecting) toRender.push(appPage);
           else releasePage(appPage);
         });
+        // Render the page nearest the one being viewed first, so the visible
+        // page paints before off-screen neighbours.
+        toRender
+          .sort((a, b) => Math.abs(a - currentPageRef.current) - Math.abs(b - currentPageRef.current))
+          .forEach(renderPage);
       },
       { root: container, rootMargin: '100% 0px 100% 0px', threshold: 0 }
     );
@@ -256,7 +270,7 @@ export const PdfPageViewer = ({
   }, [docReady, viewMode, renderPage, releasePage, onPageChange]);
 
   // ---- Scroll-to-page (mirrors PageViewer) ----------------------------------
-  const scrollToPage = useCallback((pageNum: number) => {
+  const scrollToPage = useCallback((pageNum: number, smooth = true) => {
     const container = pageContainerRef.current;
     if (!container || !currentIssue) return;
     isScrollingRef.current = true;
@@ -268,7 +282,9 @@ export const PdfPageViewer = ({
         target = document.getElementById(`page-${spreadStart}`);
       }
       if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Instant ('auto') jumps land directly on the page without smooth-
+        // scrolling through (and rendering) every page in between.
+        target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
         setTimeout(() => (isScrollingRef.current = false), 500);
       } else if (tries < 3) {
         setTimeout(() => attempt(tries + 1), 100 * (tries + 1));
@@ -279,19 +295,27 @@ export const PdfPageViewer = ({
     attempt();
   }, [viewMode, currentIssue]);
 
-  // React to initialPage changes coming from the parent (TOC clicks, URL).
+  // React to initialPage changes coming from the parent (TOC clicks, URL, a
+  // random-article jump). Jump instantly so we don't scroll through (and render)
+  // every page on the way.
   useEffect(() => {
     if (initialPage !== currentPage) {
       setCurrentPage(initialPage);
-      if (docReady) scrollToPage(initialPage);
+      currentPageRef.current = initialPage;
+      if (docReady) {
+        renderPage(initialPage); // paint the target first
+        scrollToPage(initialPage, false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPage, docReady]);
 
-  // Jump to the initial page once the document is ready.
+  // Jump straight to the initial page once the document is ready.
   useEffect(() => {
-    if (docReady && initialPage > 1) {
-      setTimeout(() => scrollToPage(initialPage), 100);
+    if (docReady) {
+      currentPageRef.current = initialPage;
+      renderPage(initialPage); // prioritise the landing page
+      if (initialPage > 1) setTimeout(() => scrollToPage(initialPage, false), 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docReady]);

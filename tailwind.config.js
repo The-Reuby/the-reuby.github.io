@@ -30,6 +30,8 @@ export default {
         'pop-in': 'pop-in 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'enter-right': 'enter-right 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         'enter-left': 'enter-left 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        'progress-grow': 'progress-grow 2.7s ease-out forwards',
+        'indeterminate': 'indeterminate 1.1s ease-in-out infinite',
       },
       keyframes: {
         'slide-in': {
@@ -59,6 +61,14 @@ export default {
         'enter-left': {
           '0%': { opacity: 0, transform: 'translateX(-28px)' },
           '100%': { opacity: 1, transform: 'translateX(0)' },
+        },
+        'progress-grow': {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        },
+        'indeterminate': {
+          '0%': { transform: 'translateX(-120%)' },
+          '100%': { transform: 'translateX(420%)' },
         },
       },
     },
