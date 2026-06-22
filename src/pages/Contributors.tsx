@@ -348,8 +348,8 @@ export const Contributors = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Background overlay */}
-          <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-md transition-all duration-300"
+          <div
+            className="fixed inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
             onClick={closeModal}
           ></div>
 
@@ -358,13 +358,13 @@ export const Contributors = () => {
             role="dialog"
             aria-modal="true"
             aria-label={`${latestTeam?.issue ?? 'Editorial team'} — meet the team`}
-            className="relative w-full max-w-6xl h-[90vh] lg:h-[660px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-3xl overflow-hidden border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
+            className="relative w-full max-w-6xl h-[92vh] lg:h-[720px] bg-white/20 dark:bg-slate-900/30 backdrop-blur-2xl shadow-2xl rounded-3xl overflow-hidden border border-white/30 dark:border-slate-700/50 flex flex-col animate-pop-in"
           >
             {/* Close button */}
             <button
               onClick={closeModal}
               aria-label="Close"
-              className="absolute top-4 right-4 z-30 p-2.5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl border border-white/30 dark:border-slate-700/30"
+              className="absolute top-4 right-4 z-30 p-2.5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:rotate-90 transition-all duration-300 shadow-lg hover:shadow-xl border border-white/30 dark:border-slate-700/30"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -450,7 +450,7 @@ export const Contributors = () => {
 
               {/* Story */}
               <div className="lg:w-[58%] flex flex-col min-h-0 bg-gradient-to-br from-white/30 to-white/5 dark:from-slate-800/40 dark:to-slate-900/20 backdrop-blur-lg">
-                <div key={currentMemberIndex} className={`flex-1 min-h-0 p-6 lg:p-9 flex flex-col ${enterAnimation}`}>
+                <div key={currentMemberIndex} className={`flex-1 min-h-0 overflow-y-auto scrollbar-hide p-6 lg:p-9 flex flex-col ${enterAnimation}`}>
                   {/* Eyebrow + index */}
                   <div className="flex items-center justify-between mb-4 pr-10 lg:pr-12">
                     <p className="text-[11px] uppercase tracking-[0.22em] font-bold text-primary-600 dark:text-primary-400">
@@ -488,8 +488,8 @@ export const Contributors = () => {
                     )}
                   </div>
 
-                  {/* Bio */}
-                  <div className="relative flex-1 min-h-0 overflow-y-auto mt-5 bg-white/70 dark:bg-slate-900/60 rounded-2xl p-5 lg:p-6 pt-7 shadow-inner border border-slate-200/50 dark:border-slate-700/40">
+                  {/* Bio — flows naturally; the column scrolls invisibly only if a bio is unusually long */}
+                  <div className="relative mt-5 bg-white/70 dark:bg-slate-900/60 rounded-2xl p-5 lg:p-6 pt-7 shadow-inner border border-slate-200/50 dark:border-slate-700/40">
                     <span className="absolute top-1 left-4 text-6xl leading-none text-primary-300/60 dark:text-primary-700/50 font-serif select-none">“</span>
                     <p className="relative text-slate-700 dark:text-slate-300 leading-relaxed text-base lg:text-lg">
                       {currentMember.bio}
@@ -500,7 +500,7 @@ export const Contributors = () => {
             </div>
 
             {/* Avatar dock — every member at a glance; click any face to focus them */}
-            <div className="shrink-0 border-t border-white/25 dark:border-slate-700/40 bg-white/30 dark:bg-slate-900/40 backdrop-blur-xl px-4 lg:px-6 pt-7 pb-8">
+            <div className="shrink-0 border-t border-white/25 dark:border-slate-700/40 bg-white/30 dark:bg-slate-900/40 backdrop-blur-xl px-4 lg:px-6 pt-7 pb-6">
               <div className="flex items-center justify-center gap-2 lg:gap-4">
                 {/* Prev */}
                 <button
