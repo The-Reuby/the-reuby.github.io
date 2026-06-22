@@ -30,6 +30,14 @@ const editorialTeams: Team[] = Object.values(
   .filter((team) => team.members.length > 0)
   .sort((a, b) => Number(b.year) - Number(a.year));
 
+// Transparent freeze-frame cutout lives alongside the original photo.
+const cutoutSrc = (image?: string | null) =>
+  image ? `/images/people/cutout/${image.split('/').pop()!.replace(/\.[^.]+$/, '')}.png` : undefined;
+
+// Shown as a full photo — Katherine's shot interacts with the Reuben dinosaur,
+// which a cutout would throw away.
+const noCutout = new Set(['Katherine Faulkner']);
+
 export const Contributors = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
@@ -87,6 +95,20 @@ export const Contributors = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModalOpen, currentMemberIndex, members.length]);
 
+  // Preload every photo + cutout once the modal opens, so switching members is
+  // instant instead of flashing the previous frame while the new one decodes.
+  useEffect(() => {
+    if (!isModalOpen) return;
+    (latestTeam?.members ?? []).forEach((m) => {
+      if (!m.image) return;
+      new Image().src = m.image;
+      if (!noCutout.has(m.name)) {
+        const c = cutoutSrc(m.image);
+        if (c) new Image().src = c;
+      }
+    });
+  }, [isModalOpen, latestTeam]);
+
   // On mobile the faces are a horizontal strip — keep the active one centred.
   const activeFaceRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -100,14 +122,6 @@ export const Contributors = () => {
 
   const initials = (name: string) =>
     name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
-
-  // Transparent freeze-frame cutout lives alongside the original photo.
-  const cutoutSrc = (image?: string | null) =>
-    image ? `/images/people/cutout/${image.split('/').pop()!.replace(/\.[^.]+$/, '')}.png` : undefined;
-
-  // Shown as a full photo — Katherine's shot interacts with the Reuben dinosaur,
-  // which a cutout would throw away.
-  const noCutout = new Set(['Katherine Faulkner']);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -422,7 +436,7 @@ export const Contributors = () => {
                       src={cutoutSrc(currentMember.image)}
                       alt={currentMember.name}
                       onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                      className="absolute inset-0 w-full h-full object-cover object-center z-10 drop-shadow-[0_18px_22px_rgba(0,0,0,0.5)] animate-pop-in"
+                      className="absolute inset-0 w-full h-full object-cover object-center z-10 scale-[1.045] -translate-y-2 lg:-translate-y-3 drop-shadow-[0_14px_22px_rgba(0,0,0,0.42)] animate-fade-in"
                     />
                   )
                 ) : (
