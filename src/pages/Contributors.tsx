@@ -39,8 +39,8 @@ const cutoutSrc = (image?: string | null) =>
 const noCutout = new Set(['Katherine Faulkner']);
 
 export const Contributors = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [currentMemberIndex, setCurrentMemberIndex] = useState(1);
   // Direction of the last navigation, so the incoming member slides in from the
   // matching side (1 = forward/right, -1 = back/left).
   const [direction, setDirection] = useState(1);
@@ -403,7 +403,7 @@ export const Contributors = () => {
                     src={currentMember.image}
                     alt={noCutout.has(currentMember.name) ? currentMember.name : ''}
                     aria-hidden={!noCutout.has(currentMember.name)}
-                    className={`absolute inset-0 w-full h-full object-cover object-center animate-fade-in ${
+                    className={`absolute inset-0 w-full h-full object-cover object-top lg:object-center animate-fade-in ${
                       noCutout.has(currentMember.name) ? 'saturate-105' : 'blur-[2px] brightness-90 saturate-110'
                     }`}
                   />
@@ -436,7 +436,7 @@ export const Contributors = () => {
                       src={cutoutSrc(currentMember.image)}
                       alt={currentMember.name}
                       onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                      className="absolute inset-0 w-full h-full object-cover object-center z-10 scale-[1.045] -translate-y-2 lg:-translate-y-3 drop-shadow-[0_14px_22px_rgba(0,0,0,0.42)] animate-fade-in"
+                      className="absolute inset-0 w-full h-full object-cover object-top lg:object-center z-10 lg:scale-[1.045] lg:-translate-y-3 drop-shadow-[0_14px_22px_rgba(0,0,0,0.42)] animate-fade-in"
                     />
                   )
                 ) : (
@@ -451,7 +451,7 @@ export const Contributors = () => {
                 <span className="absolute top-3 left-3 lg:top-4 lg:left-4 z-30 -rotate-3 bg-primary-600 text-white text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.15em] px-2 lg:px-2.5 py-1 rounded shadow-md">
                   The Reuby · {currentMemberIndex + 1}/{members.length}
                 </span>
-                <span className="absolute top-3 right-12 lg:top-4 lg:right-14 z-30 rotate-3 bg-amber-400 text-slate-900 text-[8px] lg:text-[9px] font-extrabold uppercase tracking-[0.15em] leading-tight px-1.5 lg:px-2 py-1 rounded shadow-md text-right">
+                <span className="hidden sm:block absolute top-3 right-12 lg:top-4 lg:right-14 z-30 rotate-3 bg-amber-400 text-slate-900 text-[8px] lg:text-[9px] font-extrabold uppercase tracking-[0.15em] leading-tight px-1.5 lg:px-2 py-1 rounded shadow-md text-right">
                   Meet<br />the team
                 </span>
 
