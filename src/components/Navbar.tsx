@@ -1,14 +1,95 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { getAssetPath } from '../utils/pathUtils';
+
+// Small, shared caches so "Read a random article" is instant after the first
+// load (the issue list + each issue's article metadata are tiny JSON files).
+let issuesCache: { slug: string }[] | null = null;
+const articleMetaCache = new Map<string, { pages?: number[] }[]>();
+
+const prefetchRandomData = async () => {
+  try {
+    if (!issuesCache) {
+      const res = await fetch(getAssetPath('/data/issues.json'));
+      issuesCache = await res.json();
+    }
+    await Promise.all(
+      (issuesCache ?? []).map(async (iss) => {
+        if (articleMetaCache.has(iss.slug)) return;
+        try {
+          const r = await fetch(getAssetPath(`/data/${iss.slug}.json`));
+          articleMetaCache.set(iss.slug, r.ok ? (await r.json()).articles ?? [] : []);
+        } catch {
+          articleMetaCache.set(iss.slug, []);
+        }
+      })
+    );
+  } catch {
+    // Offline / fetch failed — the click handler will retry on demand.
+  }
+};
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isDark, toggleDarkMode } = useDarkMode();
   const location = useLocation();
+  const navigate = useNavigate();
   const pathname = location.pathname;
-  
+
+  // Warm the cache as soon as the nav mounts so the first click is instant.
+  useEffect(() => {
+    prefetchRandomData();
+  }, []);
+
+  // Jump to a random article: pick a random issue, then a random article within
+  // it, and open the reader at that article's first page. Uses the prefetched
+  // cache when available (instant), otherwise fetches on demand.
+  const goToRandomArticle = async () => {
+    try {
+      let issues = issuesCache;
+      if (!issues) {
+        issues = await (await fetch(getAssetPath('/data/issues.json'))).json();
+        issuesCache = issues;
+      }
+      if (!issues?.length) return;
+      const issue = issues[Math.floor(Math.random() * issues.length)];
+
+      let articles = articleMetaCache.get(issue.slug);
+      if (!articles) {
+        try {
+          const r = await fetch(getAssetPath(`/data/${issue.slug}.json`));
+          articles = r.ok ? (await r.json()).articles ?? [] : [];
+        } catch {
+          articles = [];
+        }
+        articleMetaCache.set(issue.slug, articles);
+      }
+
+      let page = 1;
+      if (articles.length) {
+        const article = articles[Math.floor(Math.random() * articles.length)];
+        page = article.pages?.[0] && article.pages[0] > 0 ? article.pages[0] : 1;
+      }
+
+      setIsMenuOpen(false);
+      navigate(`/reader?issue=${issue.slug}&page=${page}`);
+    } catch (err) {
+      console.error('Could not pick a random article', err);
+    }
+  };
+
+  const DiceIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2" />
+      <circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" />
+      <circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.3" fill="currentColor" />
+      <circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" />
+      <circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" />
+    </svg>
+  );
+
   return (
     <nav className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-[60]">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,6 +162,15 @@ export const Navbar = () => {
             */}
             
             <button
+              onClick={goToRandomArticle}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold shadow-sm hover:bg-primary-700 hover:shadow transition-all duration-200"
+              title="Read a random article"
+            >
+              <DiceIcon className="h-4 w-4" />
+              Random
+            </button>
+
+            <button
               onClick={toggleDarkMode}
               className="ml-4 p-2 rounded-md text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-300 focus:outline-none"
             >
@@ -95,7 +185,7 @@ export const Navbar = () => {
               )}
             </button>
           </div>
-          
+
           <div className="-mr-2 flex items-center sm:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -163,7 +253,14 @@ export const Navbar = () => {
           </Link>
         </div>
         <div className="pt-4 pb-3 border-t border-slate-200 dark:border-slate-700">
-          <div className="flex items-center px-4">
+          <div className="flex items-center gap-3 px-4">
+            <button
+              onClick={goToRandomArticle}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary-600 text-white text-base font-semibold shadow-sm hover:bg-primary-700 transition-colors"
+            >
+              <DiceIcon className="h-5 w-5" />
+              Read a random article
+            </button>
             {/* Mobile search functionality commented out for now
             <div className="relative w-full">
               <input
