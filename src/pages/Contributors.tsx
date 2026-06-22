@@ -39,7 +39,7 @@ const cutoutSrc = (image?: string | null) =>
 const noCutout = new Set(['Katherine Faulkner']);
 
 export const Contributors = () => {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   // Direction of the last navigation, so the incoming member slides in from the
   // matching side (1 = forward/right, -1 = back/left).
@@ -143,7 +143,7 @@ export const Contributors = () => {
     name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <header className="mb-20 text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 mb-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg">
@@ -151,7 +151,7 @@ export const Contributors = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
-          <h1 className="text-6xl font-extrabold bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600 bg-clip-text text-transparent mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600 bg-clip-text text-transparent mb-6">
             Contributors
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
@@ -387,7 +387,7 @@ export const Contributors = () => {
 
             {/* Team Introduction Modal — desktop card */}
       {isModalOpen && !isMobile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4">
           {/* Background overlay */}
           <div
             className="fixed inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
@@ -622,7 +622,7 @@ export const Contributors = () => {
           role="dialog"
           aria-modal="true"
           aria-label={`${latestTeam?.issue ?? 'Editorial team'} — meet the team`}
-          className="fixed inset-0 z-50 bg-slate-950 flex flex-col animate-fade-in"
+          className="fixed inset-0 z-[70] bg-slate-950 flex flex-col animate-fade-in"
         >
           {/* Hero — freeze-frame figure, swipe to navigate */}
           <div
