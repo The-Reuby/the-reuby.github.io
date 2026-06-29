@@ -1,6 +1,13 @@
 {
   "slug": "reuby4",
   "articles": [
+
+    {
+      "id": "cover",
+      "title": "Cover",
+      "author": "The Editorial Team",
+      "pages": [0]
+    },
     {
       "id": "foreword",
       "title": "Foreword",
