@@ -511,7 +511,7 @@ export const PageViewer = ({
             data-spread-end={hasRightPage ? rightPageNum : leftPageNum}
             id={`page-${leftPageNum}`}
           >
-            <div className="flex flex-col sm:flex-row gap-1 justify-center">
+            <div className="flex flex-col sm:flex-row justify-center">
               {/* Left page */}
               <div 
                 className="relative aspect-[3/4] sm:max-w-xl w-full overflow-hidden rounded-l-lg shadow-lg"

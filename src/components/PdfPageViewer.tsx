@@ -535,7 +535,7 @@ export const PdfPageViewer = ({
     // (`availWidth || …` keeps a sensible size for the first paint before the
     // container is measured.)
     const singleMax = Math.min((fitWidth || 896) * zoom, availWidth || Infinity);
-    const spreadMax = singleMax * 2 + 8; // two pages + the gap-1 between them
+    const spreadMax = singleMax * 2; // two pages, flush against each other (no gap)
 
     // Cover (app page 0 -> PDF page 1).
     pages.push(
@@ -567,7 +567,7 @@ export const PdfPageViewer = ({
             data-spread-end={hasRight ? right : left}
             id={`page-${left}`}
           >
-            <div className="flex flex-col sm:flex-row gap-1 justify-center">
+            <div className="flex flex-col sm:flex-row justify-center">
               <div className="w-full">{pageSlot(left, 'rounded-l-lg')}</div>
               {hasRight ? (
                 <div className="w-full">{pageSlot(right, 'rounded-r-lg')}</div>

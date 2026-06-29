@@ -255,6 +255,36 @@ export const Reader = () => {
     setShowComments(prevState => !prevState);
   };
 
+  // Jump to a random article (from the site-nav dropdown). Lightweight version
+  // of the navbar's feature: pick a random issue + article and navigate there.
+  const goToRandomArticle = async () => {
+    setIsSiteNavOpen(false);
+    try {
+      const res = await fetch(getAssetPath('/data/issues.json'));
+      const issues: { slug: string }[] = await res.json();
+      if (!issues?.length) return;
+      const issue = issues[Math.floor(Math.random() * issues.length)];
+
+      let page = 1;
+      try {
+        const r = await fetch(getAssetPath(`/data/${issue.slug}.json`));
+        if (r.ok) {
+          const articles: { pages?: number[] }[] = (await r.json()).articles ?? [];
+          if (articles.length) {
+            const article = articles[Math.floor(Math.random() * articles.length)];
+            page = article.pages?.[0] && article.pages[0] > 0 ? article.pages[0] : 1;
+          }
+        }
+      } catch {
+        // Couldn't read the article list — just open the issue at page 1.
+      }
+
+      navigate(`/reader?issue=${issue.slug}&page=${page}`);
+    } catch (err) {
+      console.error('Could not pick a random article', err);
+    }
+  };
+
   // Toggle single/double page view mode
   const toggleViewMode = () => {
     const newParams = new URLSearchParams(location.search);
@@ -395,9 +425,47 @@ export const Reader = () => {
                         {link.label}
                       </Link>
                     ))}
+                    <div className="my-1 h-px bg-slate-200 dark:bg-slate-700" />
+                    <button
+                      onClick={goToRandomArticle}
+                      role="menuitem"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2" />
+                        <circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" />
+                        <circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" />
+                        <circle cx="12" cy="12" r="1.3" fill="currentColor" />
+                        <circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" />
+                        <circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" />
+                      </svg>
+                      Random article
+                    </button>
                   </div>
                 )}
               </div>
+
+              <button
+                onClick={() => {
+                  try {
+                    navigate('/', { replace: true });
+                    setTimeout(() => {
+                      if (window.location.pathname.includes('/reader')) {
+                        window.location.href = '/';
+                      }
+                    }, 100);
+                  } catch {
+                    window.location.href = '/';
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                aria-label="Back to issues"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="hidden sm:inline">Issues</span>
+              </button>
 
               <button
                 onClick={toggleMobileMenu}
