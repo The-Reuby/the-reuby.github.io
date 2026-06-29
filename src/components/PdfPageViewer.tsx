@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getAssetPath } from '../utils/pathUtils';
 import { loadPdf, type PdfDocument } from '../utils/pdf';
@@ -38,6 +38,14 @@ export const PdfPageViewer = ({
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [viewMode, setViewMode] = useState<'single' | 'double'>(doubleView ? 'double' : 'single');
   const [isScreenWideEnough, setIsScreenWideEnough] = useState(false);
+
+  // Zoom: 1.0 means "fit a whole page in the viewport height" (the default, so
+  // the page is fully visible without scrolling). `fitWidth` is the single-page
+  // width that achieves that fit; `availWidth` is how wide a page can grow
+  // before it fills the scroll area — both are measured from the container.
+  const [zoom, setZoom] = useState(1);
+  const [fitWidth, setFitWidth] = useState(0);
+  const [availWidth, setAvailWidth] = useState(0);
 
   // PDF document + derived page aspect ratio (width / height) for stable layout.
   const [docReady, setDocReady] = useState(false);
@@ -114,6 +122,28 @@ export const PdfPageViewer = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfHref]);
+
+  // ---- Measure the fit-to-height page width ---------------------------------
+  // The scroll container is a fixed height (100vh - 8rem). Work out the page
+  // width that lets one whole page fit inside it, so the default zoom shows the
+  // full page. Re-measured on resize (and once the aspect ratio is known).
+  useLayoutEffect(() => {
+    const compute = () => {
+      const c = pageContainerRef.current;
+      if (!c) return;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      // clientHeight includes the container's py-6 padding (3rem); a centred
+      // page also carries my-6 margins (3rem). Subtract both so one page fits.
+      const usableH = c.clientHeight - 6 * rem;
+      // clientWidth includes the px-4 padding (2rem); that's the widest a page
+      // can get before it fills the column.
+      setFitWidth(Math.max(0, usableH) * aspectRatio);
+      setAvailWidth(Math.max(0, c.clientWidth - 2 * rem));
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, [aspectRatio]);
 
   // ---- Screen-width / view-mode constraints (mirrors PageViewer) ------------
   useEffect(() => {
@@ -280,11 +310,15 @@ export const PdfPageViewer = ({
     isScrollingRef.current = true;
 
     const attempt = (tries = 0) => {
-      let target: HTMLElement | null = document.getElementById(`page-${pageNum}`);
-      if (!target && viewMode === 'double' && pageNum > 0) {
-        const spreadStart = pageNum % 2 === 0 ? pageNum - 1 : pageNum;
-        target = document.getElementById(`page-${spreadStart}`);
-      }
+      // In double-page mode every spread is anchored by its left (odd) page id,
+      // so map any page to its spread start. Resolving this *first* matters: the
+      // even-page elements sit at the end of a spread, so targeting them
+      // directly would scroll a whole spread too far.
+      const targetId =
+        viewMode === 'double' && pageNum > 0
+          ? `page-${pageNum % 2 === 0 ? pageNum - 1 : pageNum}`
+          : `page-${pageNum}`;
+      const target = document.getElementById(targetId);
       if (target) {
         // Instant ('auto') jumps land directly on the page without smooth-
         // scrolling through (and rendering) every page in between.
@@ -428,6 +462,27 @@ export const PdfPageViewer = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentIssue, currentPage, onPageChange, scrollToPage, viewMode]);
 
+  // Re-render the visible pages crisply after a zoom change. Each canvas is
+  // rasterised to the page's pixel width at render time, so CSS-scaling it to a
+  // new size would blur; instead drop the canvases and repaint at the new width.
+  useEffect(() => {
+    if (!docReady) return;
+    const id = window.setTimeout(() => {
+      const container = pageContainerRef.current;
+      if (!container) return;
+      const cRect = container.getBoundingClientRect();
+      Array.from(pageStateRef.current.keys()).forEach((appPage) => releasePage(appPage));
+      // Repaint pages within ~one viewport of the visible area.
+      container.querySelectorAll<HTMLElement>('[data-pdf-page]').forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < cRect.top - cRect.height || r.top > cRect.bottom + cRect.height) return;
+        const appPage = parseInt(el.getAttribute('data-pdf-page') || '-1', 10);
+        if (appPage >= 0) renderPage(appPage);
+      });
+    }, 250);
+    return () => window.clearTimeout(id);
+  }, [zoom, docReady, releasePage, renderPage]);
+
   if (!currentIssue) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -445,7 +500,7 @@ export const PdfPageViewer = ({
   }
 
   // A canvas target slot with a loading placeholder, sized by the page aspect ratio.
-  const pageSlot = (appPage: number, rounding: string, label: string, labelSide: 'left' | 'right') => (
+  const pageSlot = (appPage: number, rounding: string) => (
     <div
       className={`relative w-full overflow-hidden ${rounding} shadow-lg bg-white`}
       style={{ aspectRatio: String(aspectRatio) }}
@@ -454,27 +509,29 @@ export const PdfPageViewer = ({
       <div className="pdf-placeholder absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800/40">
         <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
-      <div className={`absolute bottom-2 ${labelSide === 'left' ? 'left-2' : 'right-2'} z-10 text-sm px-2 py-1 bg-white/80 dark:bg-slate-800/80 rounded-md`}>
-        {label}
-      </div>
     </div>
   );
 
   const renderPages = () => {
     const pages = [];
+    // Page width at the current zoom, capped so it never overflows the column.
+    // (`availWidth || …` keeps a sensible size for the first paint before the
+    // container is measured.)
+    const singleMax = Math.min((fitWidth || 896) * zoom, availWidth || Infinity);
+    const spreadMax = singleMax * 2 + 8; // two pages + the gap-1 between them
 
     // Cover (app page 0 -> PDF page 1).
     pages.push(
-      <div key="cover" className="page-container my-6 mx-auto max-w-4xl" data-page={0} id="page-0">
-        {pageSlot(0, 'rounded-lg', 'Cover', 'right')}
+      <div key="cover" className="page-container my-6 mx-auto" style={{ maxWidth: singleMax }} data-page={0} id="page-0">
+        {pageSlot(0, 'rounded-lg')}
       </div>
     );
 
     if (viewMode === 'single') {
       for (let i = 1; i <= currentIssue.pageCount; i++) {
         pages.push(
-          <div key={`page-${i}`} className="page-container my-6 mx-auto max-w-4xl" data-page={i} id={`page-${i}`}>
-            {pageSlot(i, 'rounded-lg', String(i), 'right')}
+          <div key={`page-${i}`} className="page-container my-6 mx-auto" style={{ maxWidth: singleMax }} data-page={i} id={`page-${i}`}>
+            {pageSlot(i, 'rounded-lg')}
           </div>
         );
       }
@@ -486,46 +543,84 @@ export const PdfPageViewer = ({
         pages.push(
           <div
             key={`spread-${left}`}
-            className="page-container my-6 mx-auto max-w-6xl"
+            className="page-container my-6 mx-auto"
+            style={{ maxWidth: spreadMax }}
             data-page={`${left}${hasRight ? ',' + right : ''}`}
             data-spread-start={left}
             data-spread-end={hasRight ? right : left}
             id={`page-${left}`}
           >
             <div className="flex flex-col sm:flex-row gap-1 justify-center">
-              <div className="sm:max-w-xl w-full">{pageSlot(left, 'rounded-l-lg', String(left), 'left')}</div>
+              <div className="w-full">{pageSlot(left, 'rounded-l-lg')}</div>
               {hasRight ? (
-                <div className="sm:max-w-xl w-full">{pageSlot(right, 'rounded-r-lg', String(right), 'right')}</div>
+                <div className="w-full">{pageSlot(right, 'rounded-r-lg')}</div>
               ) : (
                 <div
-                  className="relative sm:max-w-xl w-full overflow-hidden rounded-r-lg bg-slate-100 dark:bg-slate-800/30"
+                  className="relative w-full overflow-hidden rounded-r-lg bg-slate-100 dark:bg-slate-800/30"
                   style={{ aspectRatio: String(aspectRatio) }}
                 />
               )}
             </div>
           </div>
         );
-        if (hasRight) {
-          pages.push(
-            <div key={`page-${right}-anchor`} id={`page-${right}`} style={{ height: 0, overflow: 'hidden' }} aria-hidden="true" />
-          );
-        }
       }
     }
     return pages;
   };
 
+  // Zoom in stops once the page fills the column (no point growing further);
+  // zoom out bottoms out at half size for a multi-page overview.
+  const maxZoom = fitWidth > 0 ? Math.max(1, Math.min(3, availWidth / fitWidth)) : 3;
+  const zoomIn = () => setZoom((z) => Math.min(maxZoom, Math.round((z + 0.25) * 100) / 100));
+  const zoomOut = () => setZoom((z) => Math.max(0.5, Math.round((z - 0.25) * 100) / 100));
+
   return (
-    <div ref={pageContainerRef} className="flex-1 h-[calc(100vh-8rem)] overflow-y-auto px-4 py-6 scroll-smooth">
-      {!docReady && !loadError ? (
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            <div className="text-lg font-medium text-slate-700 dark:text-slate-200">Loading PDF…</div>
+    <div className="relative flex-1 min-w-0">
+      <div ref={pageContainerRef} className="h-[calc(100vh-8rem)] overflow-y-auto px-4 py-6 scroll-smooth">
+        {!docReady && !loadError ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              <div className="text-lg font-medium text-slate-700 dark:text-slate-200">Loading PDF…</div>
+            </div>
           </div>
+        ) : (
+          renderPages()
+        )}
+      </div>
+
+      {/* Zoom controls — the page fits the screen by default; zoom in for detail. */}
+      {docReady && (
+        <div className="absolute bottom-6 right-6 z-[40] flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 px-1.5 py-1 shadow-lg backdrop-blur">
+          <button
+            onClick={zoomOut}
+            disabled={zoom <= 0.5}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:hover:bg-transparent"
+            aria-label="Zoom out"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setZoom(1)}
+            className="min-w-[3.25rem] px-1 text-center text-sm font-medium tabular-nums text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
+            aria-label="Reset zoom to fit page"
+            title="Reset zoom to fit page"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            onClick={zoomIn}
+            disabled={zoom >= maxZoom}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:hover:bg-transparent"
+            aria-label="Zoom in"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
         </div>
-      ) : (
-        renderPages()
       )}
     </div>
   );

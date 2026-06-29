@@ -187,8 +187,9 @@ export const Reader = () => {
   // Handle article click from TOC
   const handleArticleClick = (article: Article) => {
     if (article.pages.length > 0) {
-      // Get the first page of the article (ensure it's not page 0)
-      const firstPage = article.pages[0] > 0 ? article.pages[0] : 1;
+      // First page of the article. Page 0 is the cover and is a valid target,
+      // so only guard against negative/invalid values.
+      const firstPage = Math.max(article.pages[0], 0);
       
       // Update the URL directly to ensure it changes immediately
       const newParams = new URLSearchParams(location.search);
@@ -210,8 +211,8 @@ export const Reader = () => {
   
   // Update page when changes from viewer component
   const handlePageChange = (page: number) => {
-    // Ensure we never set page to 0 in the URL
-    if (page > 0) {
+    // Page 0 (the cover) is valid; only reject negative/invalid values.
+    if (page >= 0) {
       setCurrentPage(page);
     }
   };
@@ -346,7 +347,7 @@ export const Reader = () => {
                   {new Date(currentIssue.date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long'
-                  })} · Page {currentPage} of {currentIssue.pageCount}
+                  })} · {currentPage === 0 ? 'Cover' : `Page ${currentPage} of ${currentIssue.pageCount}`}
                 </p>
               </div>
             </div>

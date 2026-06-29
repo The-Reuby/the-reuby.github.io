@@ -448,9 +448,6 @@ export const PageViewer = ({
               }
             }}
           />
-          <div className="absolute bottom-2 right-2 text-sm px-2 py-1 bg-white/80 dark:bg-slate-800/80 rounded-md">
-            Cover
-          </div>
         </div>
       </div>
     );
@@ -486,9 +483,6 @@ export const PageViewer = ({
                   }
                 }}
               />
-              <div className="absolute bottom-2 right-2 text-sm px-2 py-1 bg-white/80 dark:bg-slate-800/80 rounded-md">
-                {pageNum}
-              </div>
             </div>
           </div>
         );
@@ -540,9 +534,6 @@ export const PageViewer = ({
                     }
                   }}
                 />
-                <div className="absolute bottom-2 left-2 text-sm px-2 py-1 bg-white/80 dark:bg-slate-800/80 rounded-md">
-                  {leftPageNum}
-                </div>
               </div>
               
               {/* Right page - only render if it exists */}
@@ -568,9 +559,6 @@ export const PageViewer = ({
                       }
                     }}
                   />
-                  <div className="absolute bottom-2 right-2 text-sm px-2 py-1 bg-white/80 dark:bg-slate-800/80 rounded-md">
-                    {rightPageNum}
-                  </div>
                 </div>
               ) : (
                 <div 
