@@ -5,9 +5,20 @@ import { PageViewer } from '../components/PageViewer';
 // Lazy so pdf.js (~1MB core + worker) only loads when an issue actually uses it.
 const PdfPageViewer = lazy(() => import('../components/PdfPageViewer'));
 import { TableOfContents } from '../components/TableOfContents';
-import { Navbar } from '../components/Navbar';
+import { useDarkMode } from '../hooks/useDarkMode';
 import { getAssetPath } from '../utils/pathUtils';
 import { useMetaTags } from '../hooks/useMetaTags';
+
+// The site-wide navigation, surfaced as a dropdown inside the immersive reader
+// (mirrors the links in the global Navbar, which is hidden while reading).
+const SITE_NAV_LINKS = [
+  { to: '/', label: 'Home' },
+  { to: '/about', label: 'About' },
+  { to: '/archive', label: 'Archive' },
+  { to: '/contributors', label: 'Contributors' },
+  { to: '/submission', label: 'Submission' },
+  { to: '/voices', label: 'Voices' },
+];
 
 export const Reader = () => {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null);
@@ -17,7 +28,19 @@ export const Reader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  
+  const { isDark, toggleDarkMode } = useDarkMode();
+
+  // Site-nav dropdown (the immersive reader's stand-in for the global navbar).
+  const [isSiteNavOpen, setIsSiteNavOpen] = useState(false);
+  const siteNavRef = useRef<HTMLDivElement>(null);
+
+  // Page zoom, lifted here so the controls live in the top toolbar; the PDF
+  // viewer reports the allowed range and applies the value.
+  const [zoom, setZoom] = useState(1);
+  const [zoomMeta, setZoomMeta] = useState({ min: 0.5, max: 3 });
+  const zoomIn = () => setZoom((z) => Math.min(zoomMeta.max, Math.round((z + 0.25) * 100) / 100));
+  const zoomOut = () => setZoom((z) => Math.max(zoomMeta.min, Math.round((z - 0.25) * 100) / 100));
+
   // Get the issue slug from URL parameters
   const location = useLocation();
   const navigate = useNavigate();
@@ -257,11 +280,29 @@ export const Reader = () => {
     document.addEventListener('keydown', handleEscapeKey);
     return () => document.removeEventListener('keydown', handleEscapeKey);
   }, [isMobileMenuOpen]);
-  
+
+  // Dismiss the site-nav dropdown on outside click or Escape.
+  useEffect(() => {
+    if (!isSiteNavOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (siteNavRef.current && !siteNavRef.current.contains(e.target as Node)) {
+        setIsSiteNavOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsSiteNavOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [isSiteNavOpen]);
+
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="flex items-center justify-center min-h-[50vh] py-16">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
@@ -275,7 +316,6 @@ export const Reader = () => {
   if (error) {
     return (
       <>
-        <Navbar />
         <div className="flex items-center justify-center min-h-[50vh] py-16">
           <div className="max-w-md mx-auto p-6 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-red-200 dark:border-red-800">
             <div className="text-center">
@@ -300,7 +340,6 @@ export const Reader = () => {
   if (!currentIssue) {
     return (
       <>
-        <Navbar />
         <div className="flex items-center justify-center min-h-[50vh] py-16">
           <div className="max-w-md mx-auto p-6 bg-white dark:bg-slate-800 rounded-lg shadow-lg">
             <div className="text-center">
@@ -324,92 +363,158 @@ export const Reader = () => {
   
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-900">
-      {/* Navbar */}
-      <Navbar />
-      
-      {/* Reader Header */}
-      <div className="bg-white dark:bg-slate-800 shadow-md z-20">
-        <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button 
-                className="lg:hidden p-2 mr-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+      {/* Immersive single toolbar — the global navbar is hidden while reading */}
+      <div className="sticky top-0 z-30 bg-white/95 dark:bg-slate-800/95 backdrop-blur border-b border-slate-200 dark:border-slate-700">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-3 h-16">
+            {/* Left: site menu · table of contents (mobile) · issue title */}
+            <div className="flex items-center gap-1 min-w-0">
+              <div className="relative" ref={siteNavRef}>
+                <button
+                  onClick={() => setIsSiteNavOpen((o) => !o)}
+                  className="inline-flex items-center gap-1 h-10 pl-1 pr-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                  aria-label="Site menu"
+                  aria-haspopup="menu"
+                  aria-expanded={isSiteNavOpen}
+                >
+                  <img src={getAssetPath('/images/reuby_logo.jpg')} alt="The Reuby" className="h-8 w-auto rounded" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-slate-400 transition-transform ${isSiteNavOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {isSiteNavOpen && (
+                  <div role="menu" className="absolute left-0 top-full mt-1.5 w-52 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl py-1.5 z-50">
+                    {SITE_NAV_LINKS.map((link) => (
+                      <Link
+                        key={link.to}
+                        to={link.to}
+                        role="menuitem"
+                        onClick={() => setIsSiteNavOpen(false)}
+                        className="block px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-300 transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
                 onClick={toggleMobileMenu}
-                aria-label="Toggle table of contents"
+                className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                aria-label="Table of contents"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <div>
-                <h1 className="text-xl font-bold text-primary-700 dark:text-primary-300">{currentIssue.name}</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+
+              <div className="hidden sm:block h-7 w-px bg-slate-200 dark:bg-slate-700 mx-1.5" />
+
+              <div className="min-w-0">
+                <h1 className="truncate text-base sm:text-lg font-bold text-primary-700 dark:text-primary-300 leading-tight">
+                  {currentIssue.name}
+                </h1>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400 leading-tight">
                   {new Date(currentIssue.date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long'
-                  })} · {currentPage === 0 ? 'Cover' : `Page ${currentPage} of ${currentIssue.pageCount}`}
+                  })}
+                  {' · '}
+                  {currentPage === 0 ? 'Cover' : `Page ${currentPage} of ${currentIssue.pageCount}`}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {/* Comments toggle - hidden on mobile, shown on desktop */}
-              <button
-                onClick={toggleComments}
-                className="hidden lg:flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                aria-label="Toggle comments"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                {showComments ? 'Hide Comments' : 'Show Comments'}
-              </button>
-              
-              {/* Single/Double page toggle - hidden on mobile, shown on desktop */}
+
+            {/* Right: zoom · view mode (desktop) · comments · dark mode */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {currentIssue.source === 'pdf' && currentIssue.pdfUrl && (
+                <div className="hidden sm:flex items-center rounded-lg border border-slate-200 dark:border-slate-700">
+                  <button
+                    onClick={zoomOut}
+                    disabled={zoom <= zoomMeta.min}
+                    className="flex h-9 w-8 items-center justify-center rounded-l-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+                    aria-label="Zoom out"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setZoom(1)}
+                    className="h-9 min-w-[3rem] px-1 text-center text-xs font-medium tabular-nums text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+                    aria-label="Reset zoom to fit the page"
+                    title="Reset zoom to fit the page"
+                  >
+                    {Math.round(zoom * 100)}%
+                  </button>
+                  <button
+                    onClick={zoomIn}
+                    disabled={zoom >= zoomMeta.max}
+                    className="flex h-9 w-8 items-center justify-center rounded-r-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+                    aria-label="Zoom in"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
               <button
                 onClick={toggleViewMode}
-                className="hidden lg:flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                aria-label="Toggle view mode"
+                className="hidden lg:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                aria-label="Toggle one or two page view"
               >
                 {params.get('doubleview') === 'true' ? (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4h10v16H7z" />
                     </svg>
-                    Single Page
+                    One page
                   </>
                 ) : (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5h7v14H4zM13 5h7v14h-7z" />
                     </svg>
-                    Double Page
+                    Two pages
                   </>
                 )}
               </button>
+
               <button
-                onClick={() => {
-                  try {
-                    // First attempt - use React Router navigation
-                    navigate('/', { replace: true });
-                    
-                    // Set a fallback - if the page doesn't change within 100ms, force reload
-                    setTimeout(() => {
-                      if (window.location.pathname.includes('/reader')) {
-                        window.location.href = '/';
-                      }
-                    }, 100);
-                  } catch (e) {
-                    // Fallback to direct navigation if React Router fails
-                    window.location.href = '/';
-                  }
-                }}
-                className="flex items-center px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                aria-label="Back to Issues list"
+                onClick={toggleComments}
+                className={`inline-flex items-center gap-1.5 h-9 px-2.5 lg:px-3 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+                  showComments
+                    ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+                aria-label="Toggle comments"
+                aria-pressed={showComments}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                Back to Issues
+                <span className="hidden lg:inline">Comments</span>
+              </button>
+
+              <div className="hidden sm:block h-7 w-px bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+              <button
+                onClick={toggleDarkMode}
+                className="inline-flex items-center justify-center h-9 w-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {isDark ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
@@ -428,31 +533,6 @@ export const Reader = () => {
           currentPage={currentPage}
         />
         
-        {/* Floating buttons for mobile */}
-        <div className="lg:hidden fixed bottom-6 left-6 z-[95] flex flex-col gap-3">
-          {/* TOC button */}
-          <button
-            className="p-3 rounded-full bg-primary-600 text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            onClick={toggleMobileMenu}
-            aria-label="Open table of contents"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          
-          {/* Comments button */}
-          <button
-            className="p-3 rounded-full bg-slate-600 text-white shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-            onClick={toggleComments}
-            aria-label="Toggle comments"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-          </button>
-        </div>
-        
         {/* Page Viewer — PDF-direct rendering when the issue provides a pdfUrl,
             otherwise the pre-rendered PNG viewer. Both share the same API. */}
         {currentIssue.source === 'pdf' && currentIssue.pdfUrl ? (
@@ -469,6 +549,9 @@ export const Reader = () => {
               onPageChange={handlePageChange}
               isTocVisible={isLargeScreen || isMobileMenuOpen}
               doubleView={params.get('doubleview') === 'true'}
+              zoom={zoom}
+              onZoomChange={setZoom}
+              onZoomMetaChange={setZoomMeta}
             />
           </Suspense>
         ) : (

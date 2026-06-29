@@ -12,6 +12,12 @@ interface PdfPageViewerProps {
   onPageChange?: (page: number) => void;
   isTocVisible?: boolean;
   doubleView?: boolean;
+  /** Current zoom factor (1 = fit a whole page to the viewport height). Owned by the reader toolbar. */
+  zoom?: number;
+  /** Report the allowed zoom range so the toolbar can enable/disable its buttons. */
+  onZoomMetaChange?: (meta: { min: number; max: number }) => void;
+  /** Ask the reader to change the zoom (used to clamp when the range shrinks). */
+  onZoomChange?: (zoom: number) => void;
 }
 
 /**
@@ -33,17 +39,19 @@ export const PdfPageViewer = ({
   onPageChange,
   isTocVisible = true,
   doubleView = false,
+  zoom = 1,
+  onZoomMetaChange,
+  onZoomChange,
 }: PdfPageViewerProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [viewMode, setViewMode] = useState<'single' | 'double'>(doubleView ? 'double' : 'single');
   const [isScreenWideEnough, setIsScreenWideEnough] = useState(false);
 
-  // Zoom: 1.0 means "fit a whole page in the viewport height" (the default, so
-  // the page is fully visible without scrolling). `fitWidth` is the single-page
-  // width that achieves that fit; `availWidth` is how wide a page can grow
-  // before it fills the scroll area — both are measured from the container.
-  const [zoom, setZoom] = useState(1);
+  // Zoom (1.0 = fit a whole page in the viewport height) is owned by the reader
+  // toolbar and passed in. `fitWidth` is the single-page width that achieves the
+  // fit; `availWidth` is how wide a page can grow before it fills the scroll area
+  // — both are measured from the container and define the zoom range.
   const [fitWidth, setFitWidth] = useState(0);
   const [availWidth, setAvailWidth] = useState(0);
 
@@ -144,6 +152,15 @@ export const PdfPageViewer = ({
     window.addEventListener('resize', compute);
     return () => window.removeEventListener('resize', compute);
   }, [aspectRatio]);
+
+  // Report the allowed zoom range to the reader toolbar, and clamp the current
+  // zoom if that range shrinks (e.g. the window narrowed). Zoom-in stops once a
+  // page fills the column; the minimum is a half-size multi-page overview.
+  useEffect(() => {
+    const max = fitWidth > 0 ? Math.max(1, Math.min(3, availWidth / fitWidth)) : 3;
+    onZoomMetaChange?.({ min: 0.5, max });
+    if (zoom > max) onZoomChange?.(max);
+  }, [fitWidth, availWidth, zoom, onZoomMetaChange, onZoomChange]);
 
   // ---- Screen-width / view-mode constraints (mirrors PageViewer) ------------
   useEffect(() => {
@@ -568,59 +585,17 @@ export const PdfPageViewer = ({
     return pages;
   };
 
-  // Zoom in stops once the page fills the column (no point growing further);
-  // zoom out bottoms out at half size for a multi-page overview.
-  const maxZoom = fitWidth > 0 ? Math.max(1, Math.min(3, availWidth / fitWidth)) : 3;
-  const zoomIn = () => setZoom((z) => Math.min(maxZoom, Math.round((z + 0.25) * 100) / 100));
-  const zoomOut = () => setZoom((z) => Math.max(0.5, Math.round((z - 0.25) * 100) / 100));
-
   return (
-    <div className="relative flex-1 min-w-0">
-      <div ref={pageContainerRef} className="h-[calc(100vh-8rem)] overflow-y-auto px-4 py-6 scroll-smooth">
-        {!docReady && !loadError ? (
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-              <div className="text-lg font-medium text-slate-700 dark:text-slate-200">Loading PDF…</div>
-            </div>
+    <div ref={pageContainerRef} className="flex-1 h-[calc(100vh-4rem)] overflow-y-auto px-4 py-6 scroll-smooth">
+      {!docReady && !loadError ? (
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+            <div className="text-lg font-medium text-slate-700 dark:text-slate-200">Loading PDF…</div>
           </div>
-        ) : (
-          renderPages()
-        )}
-      </div>
-
-      {/* Zoom controls — the page fits the screen by default; zoom in for detail. */}
-      {docReady && (
-        <div className="absolute bottom-6 right-6 z-[40] flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 px-1.5 py-1 shadow-lg backdrop-blur">
-          <button
-            onClick={zoomOut}
-            disabled={zoom <= 0.5}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:hover:bg-transparent"
-            aria-label="Zoom out"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-            </svg>
-          </button>
-          <button
-            onClick={() => setZoom(1)}
-            className="min-w-[3.25rem] px-1 text-center text-sm font-medium tabular-nums text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
-            aria-label="Reset zoom to fit page"
-            title="Reset zoom to fit page"
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-          <button
-            onClick={zoomIn}
-            disabled={zoom >= maxZoom}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-40 disabled:hover:bg-transparent"
-            aria-label="Zoom in"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
         </div>
+      ) : (
+        renderPages()
       )}
     </div>
   );

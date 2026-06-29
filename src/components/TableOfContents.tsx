@@ -83,7 +83,7 @@ export const TableOfContents = ({
 
   // For desktop, we always show the TOC
   const desktopTOC = (
-    <div className="hidden lg:block w-64 p-4 h-[calc(100vh-8rem)] overflow-y-auto bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border-r border-white/20 dark:border-slate-700/20">
+    <div className="hidden lg:block w-64 p-4 h-[calc(100vh-4rem)] overflow-y-auto bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border-r border-white/20 dark:border-slate-700/20">
       <h2 className="text-xl font-bold mb-4">Table of Contents</h2>
       {currentIssue && (
         <div className="mb-4">

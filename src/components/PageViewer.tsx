@@ -591,7 +591,7 @@ export const PageViewer = ({
   return (
     <div 
       ref={pageContainerRef}
-      className="flex-1 h-[calc(100vh-8rem)] overflow-y-auto px-4 py-6 scroll-smooth"
+      className="flex-1 h-[calc(100vh-4rem)] overflow-y-auto px-4 py-6 scroll-smooth"
     >
       {renderPages()}
       
