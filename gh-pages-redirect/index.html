@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Reuby has moved</title>
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://reuby.org/">
+  <!-- Fallback if JavaScript is disabled (path is not preserved) -->
+  <meta http-equiv="refresh" content="0; url=https://reuby.org/">
+  <script>
+    // The Reuby moved from GitHub Pages to https://reuby.org. This page is
+    // deployed as both index.html and 404.html, so every old URL lands here and
+    // is forwarded to the same path on the new site. Old hash routes
+    // (/#/reader?issue=reuby4) become clean paths (/reader?issue=reuby4).
+    (function (l) {
+      var rest = l.hash.indexOf('#/') === 0 ? l.hash.slice(1) : l.pathname + l.search + l.hash;
+      l.replace('https://reuby.org' + rest);
+    })(window.location);
+  </script>
+</head>
+<body style="font-family: system-ui, sans-serif; text-align: center; padding: 4rem 1rem;">
+  <p>The Reuby has moved to <a href="https://reuby.org/">reuby.org</a>.</p>
+</body>
+</html>

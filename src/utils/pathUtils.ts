@@ -1,9 +1,9 @@
 /**
- * Helper function to resolve asset paths correctly in both development and production
- * environments when deployed to GitHub Pages or other static hosts
+ * Helper function to resolve asset paths from the site root, so they work
+ * on any route (e.g. /reader, /about) with browser history routing.
  */
 export const getAssetPath = (path: string): string => {
   // Remove leading slash if present
   const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
-  return `./${normalizedPath}`;
-}; 
+  return `${import.meta.env.BASE_URL}${normalizedPath}`;
+};

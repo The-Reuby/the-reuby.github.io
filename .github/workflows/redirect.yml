@@ -1,0 +1,46 @@
+# Deploys a redirector to GitHub Pages so old the-reuby.github.io links
+# forward to the new site at https://reuby.org (hosted on Vercel).
+name: Deploy GitHub Pages redirect
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "gh-pages-redirect/**"
+      - ".github/workflows/redirect.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # GitHub Pages serves 404.html for any unknown path, so deep links redirect too
+      - name: Prepare redirect site
+        run: cp gh-pages-redirect/index.html gh-pages-redirect/404.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./gh-pages-redirect
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

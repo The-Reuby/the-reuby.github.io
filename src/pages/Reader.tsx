@@ -61,7 +61,7 @@ export const Reader = () => {
   const metaTagsOptions = currentIssue ? {
     title: `${currentIssue.name}`,
     type: 'magazine',
-    url: `${window.location.origin}${window.location.pathname}#/reader?issue=${currentIssue.slug}`,
+    url: `${window.location.origin}/reader?issue=${currentIssue.slug}`,
     description: `Read ${currentIssue.name} - ${new Date(currentIssue.date).toLocaleDateString('en-UK', {
       year: 'numeric',
       month: 'long'
