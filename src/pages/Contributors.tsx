@@ -383,6 +383,12 @@ export const Contributors = () => {
             </div>
           </div>
         </section>
+
+        <div className="mt-10 text-center">
+          <p className="inline-block px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+            With thanks to Jayroop Ramesh for kindly covering the cost of our domain. &mdash; Puyu Wang
+          </p>
+        </div>
       </div>
 
             {/* Team Introduction Modal — desktop card */}
