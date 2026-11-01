@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Issue } from '../types';
 import { IssueCard } from '../components/IssueCard';
 import { EmptyState } from '../components/EmptyState';
+import { SubmissionBanner } from '../components/SubmissionBanner';
 import { getAssetPath } from '../utils/pathUtils';
 
 export const Home = () => {
@@ -89,6 +90,8 @@ export const Home = () => {
           </p>
           <div className="mt-8 h-1 w-24 bg-primary-500 mx-auto rounded-full"></div>
         </header>
+
+        <SubmissionBanner />
 
         {/* Featured Latest Issue Section */}
         {filteredIssues.length > 0 && (

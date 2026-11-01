@@ -3,8 +3,18 @@
     "id": "Solastalgia2027",
     "title": "2027 Issue",
     "theme": "Solastalgia",
+    "issue": "Issue 5",
+    "prompt": "What will you cherish or mourn, protect or warn against?",
+    "highlights": ["Articles · Poetry · Art · Fiction", "Open to all Reuben members"],
     "file": "2027-guidelines.md",
-    "deadline": "2027-03-21"
+    "deadline": "2027-03-13",
+    "posters": [
+      {
+        "src": "/images/submission/2027/2027-web.jpg",
+        "label": "Poster",
+        "alt": "Solastalgia, The Reuby Issue 5 call for submissions poster"
+      }
+    ]
   },
   "archived": [
     {
