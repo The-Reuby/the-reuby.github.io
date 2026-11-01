@@ -5,12 +5,16 @@ import { IssueCard } from '../components/IssueCard';
 import { EmptyState } from '../components/EmptyState';
 import { SubmissionBanner } from '../components/SubmissionBanner';
 import { getAssetPath } from '../utils/pathUtils';
+import { motion } from 'framer-motion';
+import { reveal, revealGroup, revealItem } from '../utils/motion';
+import { fetchOpenCall, type OpenCall } from '../utils/submissionCall';
 
 export const Home = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openCall, setOpenCall] = useState<OpenCall | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,12 +25,17 @@ export const Home = () => {
         setLoading(true);
         // Add cache-busting parameter to prevent caching
         const timestamp = new Date().getTime();
-        const response = await fetch(getAssetPath(`/data/issues.json?t=${timestamp}`));
+        // Load the submissions banner alongside, so it's in place when the page appears
+        const [response, call] = await Promise.all([
+          fetch(getAssetPath(`/data/issues.json?t=${timestamp}`)),
+          fetchOpenCall(),
+        ]);
         if (!response.ok) {
           throw new Error('Failed to fetch issues');
         }
         const data = await response.json();
         setIssues(data);
+        setOpenCall(call);
       } catch (err) {
         setError('Failed to load issues. Please try again later.');
         console.error(err);
@@ -55,7 +64,8 @@ export const Home = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] py-16">
+      // Fill the screen so the footer doesn't flash up and then jump down
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] py-16">
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
           <div className="text-lg font-medium text-slate-700 dark:text-slate-200">Loading issues...</div>
@@ -91,11 +101,12 @@ export const Home = () => {
           <div className="mt-8 h-1 w-24 bg-primary-500 mx-auto rounded-full"></div>
         </header>
 
-        <SubmissionBanner />
+        {openCall && <SubmissionBanner call={openCall} />}
 
         {/* Featured Latest Issue Section */}
         {filteredIssues.length > 0 && (
-          <div className="mb-16">
+          // Follows just after the banner when there is one
+          <motion.div className="mb-16" {...reveal} transition={{ ...reveal.transition, delay: openCall ? 0.35 : 0.15 }}>
             <div className="max-w-5xl mx-auto">
               <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -160,10 +171,10 @@ export const Home = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        <div className="mb-10">
+        <motion.div className="mb-10" {...reveal}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">All Issues</h2>
             </div>          
@@ -181,19 +192,21 @@ export const Home = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {filteredIssues.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          // Cards cascade in, one after another, as the grid scrolls into view
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" {...revealGroup}>
             {filteredIssues.map((issue, index) => (
-              <IssueCard
-                key={issue.slug}
-                issue={issue}
-                onClick={handleIssueClick}
-                isLatest={index === 0}
-              />
+              <motion.div key={issue.slug} variants={revealItem}>
+                <IssueCard
+                  issue={issue}
+                  onClick={handleIssueClick}
+                  isLatest={index === 0}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="py-10">
             <EmptyState 

@@ -4,6 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { getAssetPath } from '../utils/pathUtils';
 import { daysUntil, formatDeadline, isDeadlineOpen } from '../utils/deadline';
 import { Ticker } from '../components/Ticker';
+import { motion } from 'framer-motion';
+import { reveal } from '../utils/motion';
 
 interface Guideline {
   id: string;
@@ -157,7 +159,7 @@ export const Submission = () => {
 
           return (
             // Same editorial look as the home page banner: ticker strip, then a spread
-            <section className="group overflow-hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md mb-10">
+            <motion.section className="group overflow-hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md mb-10" {...reveal}>
               <Ticker items={tickerItems} />
 
               <div className="grid md:grid-cols-[1fr_auto] gap-8 md:gap-12 items-center p-6 sm:p-10">
@@ -236,12 +238,12 @@ export const Submission = () => {
                   ))}
                 </div>
               </div>
-            </section>
+            </motion.section>
           );
         })()}
 
         {guidelinesData && (
-          <div id="guidelines" className="scroll-mt-24 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
+          <motion.div id="guidelines" className="scroll-mt-24 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10" {...reveal}>
             <div className="p-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                 <h2 className="text-2xl font-bold text-primary-700 dark:text-primary-300">
@@ -334,7 +336,7 @@ export const Submission = () => {
                 <p className="font-medium">The Reuby Team</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 

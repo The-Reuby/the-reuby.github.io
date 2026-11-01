@@ -33,6 +33,7 @@ export default {
         'progress-grow': 'progress-grow 2.7s ease-out forwards',
         'indeterminate': 'indeterminate 1.1s ease-in-out infinite',
         'marquee': 'marquee 40s linear infinite',
+        'nav-in': 'nav-in 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
         'slide-in': {
@@ -70,6 +71,10 @@ export default {
         'indeterminate': {
           '0%': { transform: 'translateX(-120%)' },
           '100%': { transform: 'translateX(420%)' },
+        },
+        'nav-in': {
+          '0%': { opacity: 0, transform: 'translateY(-100%)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
         },
         // Content is rendered twice side by side, so shifting by half loops seamlessly
         'marquee': {

@@ -142,7 +142,7 @@ export const Navbar = () => {
 
   return (
     <>
-    <nav className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-[60]">
+    <nav className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-[60] animate-nav-in motion-reduce:animate-none">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">

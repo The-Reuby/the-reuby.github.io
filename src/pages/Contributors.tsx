@@ -1,4 +1,6 @@
 import { type TouchEvent as ReactTouchEvent, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { reveal } from '../utils/motion';
 import contributorsData from '../data/contributors.json';
 
 interface Contributor {
@@ -164,7 +166,7 @@ export const Contributors = () => {
 
         {/* Editorial Team — the newest year */}
         {latestTeam && (
-        <section className="mb-20">
+        <motion.section className="mb-20" {...reveal}>
           <div className="mb-12 text-center">
             <h2 className="text-4xl font-bold text-primary-700 dark:text-primary-300 mb-4">Editorial Team</h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-3">
@@ -221,11 +223,11 @@ export const Contributors = () => {
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
         )}
 
         {/* Faculty Advisors */}
-        <section className="mb-20">
+        <motion.section className="mb-20" {...reveal}>
           <div className="mb-12 text-center">
             <h2 className="text-4xl font-bold text-primary-700 dark:text-primary-300 mb-4">Faculty Advisors</h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -261,11 +263,11 @@ export const Contributors = () => {
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* Past Editorial Team — older years, grouped by issue */}
         {pastTeams.length > 0 && (
-        <section className="mb-20">
+        <motion.section className="mb-20" {...reveal}>
           <div className="mb-12 text-center">
             <h2 className="text-4xl font-bold text-primary-700 dark:text-primary-300 mb-4">Past Editorial Team</h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -332,11 +334,11 @@ export const Contributors = () => {
                 </div>
               </div>
           )}
-        </section>
+        </motion.section>
         )}
 
         {/* Content Contributors */}
-        <section className="mb-20">
+        <motion.section className="mb-20" {...reveal}>
           <div className="bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl shadow-lg overflow-hidden">
             <div className="p-8">
               <div className="text-center mb-8">
@@ -354,10 +356,10 @@ export const Contributors = () => {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Join Our Team */}
-        <section className="text-center">
+        <motion.section className="text-center" {...reveal}>
           <div className="bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 rounded-3xl shadow-2xl overflow-hidden">
             <div className="p-12">
               <div className="max-w-3xl mx-auto">
@@ -382,7 +384,7 @@ export const Contributors = () => {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         <div className="mt-10 text-center">
           <p className="inline-block px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">

@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { reveal } from '../utils/motion';
 import { getAssetPath } from '../utils/pathUtils';
 import { SyncedLyricsPlayer } from '../components/SyncedLyricsPlayer';
 
@@ -31,7 +33,7 @@ export const Voices = () => {
 
         <div className="prose dark:prose-invert lg:prose-lg prose-slate mx-auto">
           {/* Voices of the Reuby Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
+          <motion.div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10" {...reveal}>
             <div className="p-8">
               <h2 className="text-2xl font-bold mb-6 text-primary-700 dark:text-primary-300">Voices of the Reuby</h2>
               <div className="mb-6">
@@ -51,10 +53,10 @@ export const Voices = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Ellen's Song Section */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
+          <motion.div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10" {...reveal}>
             <div className="p-8">
               <h2 className="text-2xl font-bold mb-6 text-primary-700 dark:text-primary-300">Ellen's Song</h2>
               <div className="mb-6">
@@ -99,9 +101,9 @@ export const Voices = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
+          <motion.div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10" {...reveal}>
             <div className="p-8">
               <h2 className="text-2xl font-bold mb-4 text-primary-700 dark:text-primary-300">More Voices</h2>  
               <p className="mb-4">
@@ -117,7 +119,7 @@ export const Voices = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

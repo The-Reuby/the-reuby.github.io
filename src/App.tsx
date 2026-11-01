@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
@@ -10,6 +11,8 @@ import { Voices } from './pages/Voices';
 
 export const App = () => {
   return (
+    // Respect the OS "reduce motion" setting for every framer-motion animation
+    <MotionConfig reducedMotion="user">
     <BrowserRouter>
       <Routes>
         <Route path="/reader" element={<Reader />} />
@@ -24,5 +27,6 @@ export const App = () => {
         </Route>
       </Routes>
     </BrowserRouter>
+    </MotionConfig>
   );
 };

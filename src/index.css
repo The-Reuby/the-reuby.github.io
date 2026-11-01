@@ -56,3 +56,26 @@ body {
 button {
   cursor: pointer;
 }
+
+/* Page-open animation for page headers: logo/title/subtitle rise in one after
+   another, then the short underline bar draws itself out from the centre. */
+@keyframes header-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes header-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.page-main header > * {
+  animation: header-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.page-main header > :nth-child(2) { animation-delay: 0.08s; }
+.page-main header > :nth-child(3) { animation-delay: 0.16s; }
+.page-main header > :nth-child(4) { animation-delay: 0.24s; }
+.page-main header > .h-1 {
+  animation: header-line 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-main header > * { animation: none; }
+}

@@ -1,51 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { getAssetPath } from '../utils/pathUtils';
-import { daysUntil, formatDeadline, isDeadlineOpen } from '../utils/deadline';
+import { daysUntil, formatDeadline } from '../utils/deadline';
+import type { OpenCall } from '../utils/submissionCall';
 import { Ticker } from './Ticker';
 
-type CurrentCall = {
-  title: string;
-  theme: string;
-  issue?: string;
-  prompt?: string;
-  highlights?: string[];
-  deadline: string;
-  posters?: { src: string; alt: string }[];
-};
+const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
-// Entrance: after a short pause the space opens up, the card springs in, then
-// its contents arrive one after another. After that the ticker strip keeps moving.
-const REVEAL_DELAY = 0.5;
-
+// Entrance, in step with the page header: the card rises in, then its contents
+// follow one after another. After that the ticker strip keeps moving.
 const card: Variants = {
-  hidden: { opacity: 0, y: -24, scale: 0.96 },
+  hidden: { opacity: 0, y: 24 },
   show: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    transition: {
-      type: 'spring',
-      stiffness: 260,
-      damping: 20,
-      delay: REVEAL_DELAY,
-      // Start the contents while the card is still landing, not after it settles
-      delayChildren: REVEAL_DELAY + 0.15,
-      staggerChildren: 0.08,
-    },
+    transition: { duration: 0.6, ease: EASE_OUT, delay: 0.15, delayChildren: 0.3, staggerChildren: 0.08 },
   },
 };
 
 const item: Variants = {
   hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
 
 // Poster wipes in from the right, like a page being revealed
-const reveal: Variants = {
+const wipe: Variants = {
   hidden: { clipPath: 'inset(0 0 0 100%)' },
-  show: { clipPath: 'inset(0 0 0 0%)', transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+  show: { clipPath: 'inset(0 0 0 0%)', transition: { duration: 0.8, ease: EASE_OUT } },
 };
 
 const nudge: Variants = {
@@ -62,25 +44,12 @@ const nudge: Variants = {
   },
 };
 
-// "Submissions open" call-out for the home page. Driven by
-// /data/submission/guidelines.json and hides itself once the deadline passes.
-export const SubmissionBanner = () => {
-  const [call, setCall] = useState<CurrentCall | null>(null);
-  const reduceMotion = useReducedMotion();
-  const [opened, setOpened] = useState(false);
-
-  useEffect(() => {
-    fetch(getAssetPath(`/data/submission/guidelines.json?t=${new Date().getTime()}`))
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.current?.deadline && isDeadlineOpen(data.current.deadline)) setCall(data.current);
-      })
-      .catch(() => {
-        // Non-essential: just don't show the banner.
-      });
-  }, []);
-
-  if (!call) return null;
+// "Submissions open" call-out for the home page. Home loads the call together
+// with the issues (see fetchOpenCall), so the banner is in place from the first
+// frame and never pushes the page down after it has appeared.
+export const SubmissionBanner = ({ call }: { call: OpenCall }) => {
+  // The poster's space is reserved up front; it only wipes in once it has loaded
+  const [posterLoaded, setPosterLoaded] = useState(false);
 
   const days = daysUntil(call.deadline);
   const daysLeft = days === 0 ? 'Last day!' : `${days} day${days === 1 ? '' : 's'} left`;
@@ -88,17 +57,8 @@ export const SubmissionBanner = () => {
   const poster = call.posters?.[0];
 
   return (
-    // Grows from zero height so the content below slides down to make room
-    // (clipped only while opening, so the shadow isn't cut off afterwards)
-    <motion.div
-      className="max-w-5xl mx-auto"
-      style={{ overflow: opened || reduceMotion ? 'visible' : 'hidden' }}
-      initial={reduceMotion ? false : { height: 0 }}
-      animate={{ height: 'auto' }}
-      transition={{ duration: 0.5, delay: REVEAL_DELAY - 0.1, ease: 'easeOut' }}
-      onAnimationComplete={() => setOpened(true)}
-    >
-      <motion.div className="pb-12" variants={card} initial={reduceMotion ? false : 'hidden'} animate="show">
+    <div className="max-w-5xl mx-auto">
+      <motion.div className="pb-12" variants={card} initial="hidden" animate="show">
         <Link
           to="/submission"
           className="group block overflow-hidden rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl hover:border-primary-200 dark:hover:border-primary-800 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-400"
@@ -154,17 +114,23 @@ export const SubmissionBanner = () => {
 
             {poster && (
               <div className="flex-shrink-0 pr-5 sm:pr-10 py-5 sm:py-8">
+                {/* A-series poster ratio (1 : 1.414) keeps the card from resizing when the image arrives.
+                    Only transform/shadow are CSS-transitioned: clip-path is driven by the wipe. */}
                 <motion.img
-                  variants={reveal}
+                  variants={wipe}
+                  initial="hidden"
+                  animate={posterLoaded ? 'show' : 'hidden'}
+                  onLoad={() => setPosterLoaded(true)}
+                  onError={() => setPosterLoaded(true)}
                   src={getAssetPath(poster.src)}
                   alt={poster.alt}
-                  className="w-24 sm:w-44 h-auto rounded-sm shadow-xl ring-1 ring-slate-200 dark:ring-slate-600 group-hover:-translate-y-1 group-hover:shadow-2xl transition-all duration-300"
+                  className="w-24 sm:w-44 aspect-[1/1.414] object-cover rounded-sm bg-slate-100 dark:bg-slate-700 shadow-xl ring-1 ring-slate-200 dark:ring-slate-600 group-hover:-translate-y-1 group-hover:shadow-2xl transition-[transform,box-shadow] duration-300"
                 />
               </div>
             )}
           </div>
         </Link>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };

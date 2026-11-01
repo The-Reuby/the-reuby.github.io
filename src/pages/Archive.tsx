@@ -4,6 +4,8 @@ import { Issue } from '../types';
 import { IssueCard } from '../components/IssueCard';
 import { EmptyState } from '../components/EmptyState';
 import { getAssetPath } from '../utils/pathUtils';
+import { motion } from 'framer-motion';
+import { reveal, revealGroup, revealItem } from '../utils/motion';
 
 export const Archive = () => {
   const [archivedIssues, setArchivedIssues] = useState<Issue[]>([]);
@@ -89,7 +91,7 @@ export const Archive = () => {
           <div className="mt-8 h-1 w-24 bg-primary-500 mx-auto rounded-full"></div>
         </header>
 
-        <div className="mb-10">
+        <motion.div className="mb-10" {...reveal}>
           <div className="relative w-full max-w-md mx-auto">
             <input
               type="text"
@@ -104,19 +106,21 @@ export const Archive = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {filteredIssues.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          // Cards cascade in, one after another, as the grid scrolls into view
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" {...revealGroup}>
             {filteredIssues.map((issue) => (
-              <IssueCard
-                key={issue.slug}
-                issue={issue}
-                onClick={handleIssueClick}
-                isLatest={false}
-              />
+              <motion.div key={issue.slug} variants={revealItem}>
+                <IssueCard
+                  issue={issue}
+                  onClick={handleIssueClick}
+                  isLatest={false}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="py-10">
             <EmptyState 

@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { reveal } from '../utils/motion';
 import { getAssetPath } from '../utils/pathUtils';
 
 export const About = () => {
@@ -30,7 +32,7 @@ export const About = () => {
         </header>
 
         <div className="prose dark:prose-invert lg:prose-lg prose-slate mx-auto">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
+          <motion.div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10" {...reveal}>
             <img 
               src={getAssetPath("/images/about-cover.png")}
               alt="Magazine team" 
@@ -48,9 +50,9 @@ export const About = () => {
                 Please note that this is a student publication and does not reflect the views of the College.
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12" {...reveal}>
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden h-full">
               <div className="p-8">
                 <h2 className="text-2xl font-bold mb-4 text-primary-700 dark:text-primary-300">Our Mission</h2>
@@ -104,9 +106,9 @@ export const About = () => {
                 </ul>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10">
+          <motion.div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden mb-10" {...reveal}>
             <div className="p-8">
               <h2 className="text-2xl font-bold mb-4 text-primary-700 dark:text-primary-300">Get Involved</h2>
               <p className="mb-4">
@@ -144,7 +146,7 @@ export const About = () => {
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
