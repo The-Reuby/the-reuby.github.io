@@ -42,7 +42,7 @@ export const About = () => {
                 The Reuby is Reuben College's student-led magazine, which serves as a creative outlet for our members and fellows run by students - a channel through which to give a voice to all Reubenites, and a platform through which they can reach out to the world, inspire and make an impact. The Reuby offers, through science and art, an interdisciplinary and innovative treatment of 21st century challenges that includes news and actuality, feature articles, critical reviews, poetry and prose, and visual art.
               </p>
               <p className="mb-4">
-                You can read the 1st and 2nd editions of The Reuby, as well as The Reubyte - a mini edition of the magazine from Trinity Term 2024.
+                You can read all four issues of The Reuby, as well as The Reubyte - a mini edition of the magazine from Trinity Term 2024.
               </p>
               <p>
                 Please note that this is a student publication and does not reflect the views of the College.
@@ -87,18 +87,18 @@ export const About = () => {
                 </p>
                 <ul className="space-y-4">
                   <li className="flex items-start">
-                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">M</div>
+                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">3</div>
                     <span><strong>Previous Issue</strong> - <Link to="/reader?issue=reuby3" className="text-primary-600 dark:text-primary-400 hover:underline">Instinction</Link> - Trinity Term 2025</span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">H</div>
+                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">4</div>
                     <span><strong>Current Issue</strong> - <Link to="/reader?issue=reuby4" className="text-primary-600 dark:text-primary-400 hover:underline">Soup of Story</Link> - Trinity Term 2026 </span>
                   </li>
                  
 
                   <li className="flex items-start">
-                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">H</div>
-                    <span><strong>Next Issue</strong> - <Link to="/submission" className="text-primary-600 dark:text-primary-400 hover:underline">TBC</Link> - Trinity Term 2026</span>
+                    <div className="h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0 mt-0.5">5</div>
+                    <span><strong>Next Issue</strong> - <Link to="/submission" className="text-primary-600 dark:text-primary-400 hover:underline">Solastalgia</Link> - Trinity Term 2027</span>
 
                   </li>
                 </ul>

@@ -12,7 +12,7 @@ The theme for the next yearly issue is Solastalgia
 
 Solastalgia, a term coined in the 21st century, refers to sadness or melancholy due to environmental change and loss, especially in relation to one’s home. It is a painful sense of nostalgia for the wild, the pristine, and the rural that we feel was a part of us and which we might never again lay eyes upon. Importantly, it is also a call to action – for the collective cherishment and protection of that which is precious but obliviously crushed under the metal and concrete onslaught of modern society, economy, technology, and warfare. A fit subject for our college and its members championing this tumultuous century of ours. So fellow environmentalists and biologists, historians and anthropologists, computer scientists and engineers, poets and photographers, people of all professions, cultures, and walks of life – what will you cherish or mourn, protect or warn against, in this year’s issue of The Reuby? 
 
-The magazine is open to submissions until March 21st, 2027. Submissions can be photos, illustrations, short stories, essays, interviews, academic articles, college-related pieces, short stories and poetry, or a mix of all the above. Surprise us. 
+The magazine is open to submissions until March 21st, 2027. Submissions can be photos, illustrations, short stories, essays, interviews, academic articles, college-related pieces, poetry, or a mix of all the above. Surprise us. 
 
 ## Deadline
 - **Submission deadline**: March 21st, 2027
