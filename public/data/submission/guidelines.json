@@ -1,12 +1,19 @@
 {
   "current": {
+    "id": "Solastalgia2027",
+    "title": "2027 Issue",
+    "theme": "Solastalgia",
+    "file": "2027-guidelines.md",
+    "deadline": "2027-03-21"
+  },
+  "archived": [
+    {
     "id": "Soup2025",
     "title": "2026 Issue",
     "theme": "Soup of Story",
     "file": "2026-guidelines.md",
     "deadline": "2026-03-16"
   },
-  "archived": [
       {
     "id": "Instinction2025",
     "title": "2025 Issue",
