@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { getAssetPath } from '../utils/pathUtils';
 
 interface LyricLine {
@@ -14,7 +14,6 @@ export const SyncedLyricsPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [currentLyricIndex, setCurrentLyricIndex] = useState(-1);
   const [volume, setVolume] = useState(0.7);
   const [lyrics, setLyrics] = useState<LyricLine[]>([]);
   const [lyricsLoading, setLyricsLoading] = useState(true);
@@ -102,23 +101,15 @@ export const SyncedLyricsPlayer = () => {
     };
   }, [isLooping]);
 
-  useEffect(() => {
-    // Optimized lyric finding for better sync
-    let currentIndex = -1;
-    
-    // More efficient search - find the last lyric whose time has passed
+  // Find the last lyric whose time has passed
+  const currentLyricIndex = useMemo(() => {
     for (let i = lyrics.length - 1; i >= 0; i--) {
       if (currentTime >= lyrics[i].time) {
-        currentIndex = i;
-        break;
+        return i;
       }
     }
-    
-    // Only update if the index actually changed to avoid unnecessary re-renders
-    if (currentIndex !== currentLyricIndex) {
-      setCurrentLyricIndex(currentIndex);
-    }
-  }, [currentTime, lyrics, currentLyricIndex]);
+    return -1;
+  }, [currentTime, lyrics]);
 
   // Auto-scroll to current lyric - always keep current lyric perfectly centered
   useEffect(() => {

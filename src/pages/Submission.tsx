@@ -16,6 +16,20 @@ interface GuidelinesData {
   archived: Guideline[];
 }
 
+// Load the markdown content for a specific guideline file
+const fetchGuidelineContent = async (filename: string): Promise<string> => {
+  try {
+    const response = await fetch(getAssetPath(`/data/submission/${filename}?t=${new Date().getTime()}`));
+    if (!response.ok) {
+      throw new Error('Failed to fetch guideline content');
+    }
+    return await response.text();
+  } catch (err) {
+    console.error('Error loading guideline content:', err);
+    return '# Error\nCould not load the selected guideline. Please try again later.';
+  }
+};
+
 export const Submission = () => {
   const [guidelinesData, setGuidelinesData] = useState<GuidelinesData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +51,7 @@ export const Submission = () => {
         setGuidelinesData(data);
         
         // Load the current guidelines by default
-        loadGuidelineContent(data.current.file);
+        fetchGuidelineContent(data.current.file).then(setMarkdownContent);
       } catch (err) {
         setError('Failed to load submission guidelines. Please try again later.');
         console.error(err);
@@ -49,19 +63,8 @@ export const Submission = () => {
     fetchGuidelinesData();
   }, []);
 
-  // Load the markdown content for a specific guideline file
   const loadGuidelineContent = async (filename: string) => {
-    try {
-      const response = await fetch(getAssetPath(`/data/submission/${filename}?t=${new Date().getTime()}`));
-      if (!response.ok) {
-        throw new Error('Failed to fetch guideline content');
-      }
-      const content = await response.text();
-      setMarkdownContent(content);
-    } catch (err) {
-      console.error('Error loading guideline content:', err);
-      setMarkdownContent('# Error\nCould not load the selected guideline. Please try again later.');
-    }
+    setMarkdownContent(await fetchGuidelineContent(filename));
   };
 
   // Handle guideline selection change

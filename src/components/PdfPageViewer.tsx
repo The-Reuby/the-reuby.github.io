@@ -89,6 +89,9 @@ export const PdfPageViewer = ({
   useEffect(() => {
     if (!currentIssue) return;
     let cancelled = false;
+    const pageState = pageStateRef.current;
+    // Reset loading state when switching to a different PDF
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDocReady(false);
     setLoadError(null);
 
@@ -120,11 +123,11 @@ export const PdfPageViewer = ({
       cancelled = true;
       task.destroy?.();
       // Cancel any in-flight renders and free canvases.
-      pageStateRef.current.forEach((entry) => {
+      pageState.forEach((entry) => {
         entry.task?.cancel();
         entry.canvas?.remove();
       });
-      pageStateRef.current.clear();
+      pageState.clear();
       pdfRef.current?.destroy();
       pdfRef.current = null;
     };
@@ -175,6 +178,8 @@ export const PdfPageViewer = ({
   }, [viewMode, isTocVisible]);
 
   useEffect(() => {
+    // Mirror the doubleView prop; view mode is also changed by screen/TOC checks
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (doubleView && isScreenWideEnough && isTocVisible) setViewMode('double');
     else if (!doubleView) setViewMode('single');
   }, [doubleView, isScreenWideEnough, isTocVisible]);
@@ -379,6 +384,8 @@ export const PdfPageViewer = ({
   // every page on the way.
   useEffect(() => {
     if (initialPage !== currentPage) {
+      // Mirror parent page changes; local page state is also driven by scrolling
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentPage(initialPage);
       currentPageRef.current = initialPage;
       anchorPageRef.current = initialPage;

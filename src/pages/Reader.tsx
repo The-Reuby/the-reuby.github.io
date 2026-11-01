@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Issue, Article, IssueMeta } from '../types';
 import { PageViewer } from '../components/PageViewer';
@@ -44,7 +44,7 @@ export const Reader = () => {
   // Get the issue slug from URL parameters
   const location = useLocation();
   const navigate = useNavigate();
-  const params = new URLSearchParams(location.search);
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const issueSlug = params.get('issue');
   const pageParam = params.get('page');
   
@@ -201,6 +201,8 @@ export const Reader = () => {
   useEffect(() => {
     const urlPage = pageParam ? parseInt(pageParam, 10) : NaN;
     if (!isNaN(urlPage) && urlPage > 0 && urlPage !== currentPage) {
+      // Sync from URL; currentPage is also updated by the viewer while scrolling
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentPage(urlPage);
       lastNavigatedPageRef.current = urlPage;
     }

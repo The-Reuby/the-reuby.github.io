@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Issue } from '../types';
 import { IssueCard } from '../components/IssueCard';
@@ -7,7 +7,6 @@ import { getAssetPath } from '../utils/pathUtils';
 
 export const Archive = () => {
   const [archivedIssues, setArchivedIssues] = useState<Issue[]>([]);
-  const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +25,6 @@ export const Archive = () => {
         }
         const data = await response.json();
         setArchivedIssues(data);
-        setFilteredIssues(data);
       } catch (err) {
         setError('Failed to load archived issues. Please try again later.');
         console.error(err);
@@ -39,18 +37,13 @@ export const Archive = () => {
   }, []);
 
   // Filter issues based on search query
-  useEffect(() => {
-    let result = [...archivedIssues];
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(issue => 
-        issue.name.toLowerCase().includes(query) || 
-        issue.editors.some(editor => editor.toLowerCase().includes(query))
-      );
-    }
-    
-    setFilteredIssues(result);
+  const filteredIssues = useMemo(() => {
+    if (!searchQuery) return archivedIssues;
+    const query = searchQuery.toLowerCase();
+    return archivedIssues.filter(issue => 
+      issue.name.toLowerCase().includes(query) || 
+      issue.editors.some(editor => editor.toLowerCase().includes(query))
+    );
   }, [archivedIssues, searchQuery]);
 
   const handleIssueClick = (issue: Issue) => {

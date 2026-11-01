@@ -83,6 +83,8 @@ export const PageViewer = ({
   useEffect(() => {
     // If TOC is hidden and in double view mode, switch to single
     if (!isTocVisible && viewMode === 'double') {
+      // Drop out of two-page view when the TOC is hidden
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewMode('single');
     }
   }, [isTocVisible, viewMode]);
@@ -214,6 +216,8 @@ export const PageViewer = ({
   // Update current page when initialPage prop changes
   useEffect(() => {
     if (initialPage !== currentPage) {
+      // Mirror parent page changes; local page state is also driven by scrolling
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentPage(initialPage);
       scrollToPage(initialPage);
     }
@@ -336,7 +340,7 @@ export const PageViewer = ({
   }, [currentIssue, onPageChange, viewMode, currentPage]);
 
   // Check if double page view is allowed
-  const checkDoublePageConstraints = () => {
+  const checkDoublePageConstraints = useCallback(() => {
     if (!isScreenWideEnough || !isTocVisible) {
       const tooNarrowReason = !isScreenWideEnough 
         ? "Two-page view is only available on larger screens" 
@@ -358,11 +362,13 @@ export const PageViewer = ({
       return false;
     }
     return true;
-  };
+  }, [isScreenWideEnough, isTocVisible]);
 
   // Update view mode when doubleView prop changes
   useEffect(() => {
     if (doubleView && isScreenWideEnough && isTocVisible) {
+      // Mirror the doubleView prop; view mode is also changed by screen/TOC checks
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewMode('double');
     } else if (!doubleView) {
       setViewMode('single');
@@ -370,7 +376,7 @@ export const PageViewer = ({
       // Show message if trying to use double view but constraints aren't met
       checkDoublePageConstraints();
     }
-  }, [doubleView, isScreenWideEnough, isTocVisible]);
+  }, [doubleView, isScreenWideEnough, isTocVisible, checkDoublePageConstraints]);
 
   // Reset observer when view mode changes
   useEffect(() => {
@@ -392,6 +398,8 @@ export const PageViewer = ({
         }
       }, 200);
     }
+  // Only re-run on mode change; re-running on every page change would fight the user's scrolling
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]);
 
   if (!currentIssue) {

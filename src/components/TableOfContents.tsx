@@ -31,6 +31,8 @@ export const TableOfContents = ({
     );
     
     if (article) {
+      // Follow the reader's page; clicks also set the active article directly
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveArticleId(article.id);
     }
   }, [issueMeta?.articles, currentPage]);
