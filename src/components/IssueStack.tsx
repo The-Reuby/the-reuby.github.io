@@ -205,26 +205,24 @@ const PileCover = ({
   const zIndex = useTransform(place, (s) => s.zIndex);
   const opacity = useTransform(place, (s) => s.opacity);
 
-  const cover = (
-    <img
-      src={getCoverPath(issue)}
-      alt={`${issue.name} cover`}
-      className="h-full w-full object-cover rounded-sm bg-paper shadow-page"
-    />
-  );
-
   return (
     <motion.div style={{ x, y, rotate, scale, zIndex, opacity, transformOrigin: '50% 100%' }} className="absolute inset-0">
-      {isTop ? (
-        <Link to={getReaderPath(issue.slug)} className="block h-full w-full">
-          {cover}
-        </Link>
-      ) : (
-        // Any other issue, on the pile or beside it, brings itself to the top
-        <button onClick={onTurnTo} tabIndex={-1} aria-hidden="true" className="block h-full w-full cursor-pointer">
-          {cover}
-        </button>
-      )}
+      {/* The same link throughout, so the cover isn't remade (and can't
+          flicker) as it comes to the top: there it opens the issue; anywhere
+          else, on the pile or beside it, it brings its issue to the top */}
+      <Link
+        to={getReaderPath(issue.slug)}
+        onClick={isTop ? undefined : (e) => { e.preventDefault(); onTurnTo(); }}
+        tabIndex={isTop ? undefined : -1}
+        aria-hidden={isTop ? undefined : true}
+        className="block h-full w-full"
+      >
+        <img
+          src={getCoverPath(issue)}
+          alt={`${issue.name} cover`}
+          className="h-full w-full object-cover rounded-sm bg-paper shadow-page"
+        />
+      </Link>
       {isLatest && (
         <span className="pointer-events-none absolute -top-3 left-4 bg-accent px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-paper shadow-sm">
           Latest Issue

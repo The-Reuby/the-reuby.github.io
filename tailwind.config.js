@@ -59,6 +59,8 @@ export default {
         'indeterminate': 'indeterminate 1.1s ease-in-out infinite',
         'marquee': 'marquee 40s linear infinite',
         'nav-in': 'nav-in 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'breathe': 'breathe 2.8s ease-in-out infinite',
+        'hint-draw': 'hint-draw 1.8s ease-in-out infinite',
       },
       keyframes: {
         'slide-in': {
@@ -100,6 +102,17 @@ export default {
         'nav-in': {
           '0%': { opacity: 0, transform: 'translateY(-100%)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
+        // A glow, slowly swelling and fading
+        'breathe': {
+          '0%, 100%': { opacity: 0.3, transform: 'scale(1)' },
+          '50%': { opacity: 0.8, transform: 'scale(1.4)' },
+        },
+        // A line drawing itself downward, then fading
+        'hint-draw': {
+          '0%': { opacity: 1, transform: 'scaleY(0)' },
+          '50%': { opacity: 1, transform: 'scaleY(1)' },
+          '100%': { opacity: 0, transform: 'scaleY(1)' },
         },
         // Content is rendered twice side by side, so shifting by half loops seamlessly
         'marquee': {

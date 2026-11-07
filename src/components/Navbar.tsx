@@ -170,14 +170,14 @@ export const Navbar = () => {
 
   return (
     <>
-    <nav className="sticky top-0 z-[60] bg-desk/90 backdrop-blur-md border-b border-ink/10 animate-nav-in motion-reduce:animate-none">
+    <nav className="sticky top-0 z-[60] bg-desk border-b border-ink/10 animate-nav-in motion-reduce:animate-none">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between h-16">
+        <div className="flex lg:grid lg:grid-cols-[1fr_auto_1fr] items-center justify-between h-16">
           <Link to="/" className="flex-shrink-0 justify-self-start" onClick={() => setIsMenuOpen(false)}>
             <Logo className="h-6 sm:h-7 w-auto" />
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8">
             {NAV_LINKS.map(({ to, label }) => (
               <Link
                 key={to}
@@ -200,7 +200,7 @@ export const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center justify-self-end gap-3">
+          <div className="hidden lg:flex items-center justify-self-end gap-3">
             <button
               onClick={goToRandomArticle}
               className="inline-flex items-center gap-1.5 py-1 text-[12px] uppercase tracking-[0.16em] text-accent hover:text-ink transition-colors"
@@ -216,7 +216,7 @@ export const Navbar = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-menu"
-            className="md:hidden -mr-2 p-2 text-ink/70 hover:text-ink"
+            className="lg:hidden -mr-2 p-2 text-ink/70 hover:text-ink"
           >
             <span className="sr-only">Open main menu</span>
             {isMenuOpen ? (
@@ -238,7 +238,7 @@ export const Navbar = () => {
       {isMenuOpen && (
         <motion.div
           id="mobile-menu"
-          className="md:hidden fixed inset-x-0 top-16 bottom-0 z-[55] overflow-y-auto bg-desk"
+          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-[55] overflow-y-auto bg-desk"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

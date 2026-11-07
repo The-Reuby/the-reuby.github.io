@@ -20,27 +20,18 @@ import { Ticker } from './Ticker';
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
-const smooth = (t: number) => t * t * (3 - 2 * t);
-
 // Poster wipes in from the right once loaded, like a page being revealed
 const wipe: Variants = {
   hidden: { clipPath: 'inset(0 0 0 100%)' },
   show: { clipPath: 'inset(0 0 0 0%)', transition: { duration: 0.9, ease: EASE_OUT } },
 };
 
-const callDetails = (call: OpenCall) => {
-  const days = daysUntil(call.deadline);
-  return {
-    days,
-    daysLeft: days === 0 ? 'Last day!' : `${days} day${days === 1 ? '' : 's'} left`,
-    deadline: formatDeadline(call.deadline),
-  };
-};
-
 // The call's strapline, run across the top of the home page like the line
 // across a magazine cover.
 export const SubmissionTicker = ({ call }: { call: OpenCall }) => {
-  const { daysLeft, deadline } = callDetails(call);
+  const days = daysUntil(call.deadline);
+  const daysLeft = days === 0 ? 'Last day!' : `${days} day${days === 1 ? '' : 's'} left`;
+  const deadline = formatDeadline(call.deadline);
   return (
     <Link to="/submission" className="group block" aria-label="Submissions open">
       <Ticker
@@ -58,11 +49,11 @@ export const SubmissionTicker = ({ call }: { call: OpenCall }) => {
 
 // The open call, as the first thing on the home page, set like a cover: the
 // magazine's masthead at the top, the theme's lettering cut from the poster in
-// the middle with its definition and the prompt beneath, and at the foot the
-// deadline and the invitation, on a sheet coloured like the poster's sky. On
-// every screen the sheet holds still while you scroll and the pieces arrive in
-// turn; anyone who prefers reduced motion gets them all at once. Without cut
-// pieces, the whole poster stands in for them.
+// the middle with its definition and the prompt beneath, then, in their place,
+// the deadline and the invitation, on a sheet coloured like the poster's sky.
+// On every screen the sheet holds still while the two turn like pages under
+// the lettering; anyone who prefers reduced motion gets them all at once.
+// Without cut pieces, the whole poster stands in for them.
 export const SubmissionHero = ({ call }: { call: OpenCall }) => {
   const reduceMotion = useReducedMotion();
   if (!call.hero) return <PosterHero call={call} />;
@@ -71,62 +62,129 @@ export const SubmissionHero = ({ call }: { call: OpenCall }) => {
 
 type Hero = NonNullable<OpenCall['hero']>;
 
+// What the sheet shows: the lettering alone in the very middle, then what the
+// theme asks beneath it, then the call itself
+type Stage = 'title' | 'theme' | 'call';
+
+// How far into the sheet's run (0–1) a scroll turns to each page, a flick of
+// the wheel or thumb, and between them the stretch over which the prompt is
+// read, word by word, as you scroll: two or three steps of the wheel
+const THEME_AT = 0.05;
+const READ_FROM = 0.1;
+const READ_TO = 0.36;
+const CALL_AT = 0.44;
+const stageAt = (v: number): Stage => (v < THEME_AT ? 'title' : v < CALL_AT ? 'theme' : 'call');
+
+// What the theme asks, as a whole: lifting away as the call takes over, and
+// back in place (behind its lines, already gone) if you scroll back to the top
+const themePage: Variants = {
+  title: { opacity: 1, y: 0, transition: { delay: 0.35, duration: 0 } },
+  theme: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE_OUT, delayChildren: 0.35, staggerChildren: 0.2 } },
+  call: { opacity: 0, y: -24, transition: { duration: 0.35, ease: [0.4, 0, 1, 1] } },
+};
+// Its lines, each fading and lifting in
+const themeLine: Variants = {
+  title: { opacity: 0, y: 16, transition: { duration: 0.3 } },
+  theme: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
+};
+// The call: arriving once the theme has gone, leaving quickly
+const callLine = (delay: number): Variants => ({
+  title: { opacity: 0, y: 16, transition: { duration: 0.25 } },
+  theme: { opacity: 0, y: 16, transition: { duration: 0.25 } },
+  call: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_OUT, delay } },
+});
+const callOpen = callLine(0.3);
+const callAction = callLine(0.6);
+
 const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start start', 'end end'] });
 
-  // From the first frame: the masthead, and the lettering in the very middle
-  // of the sheet · 0.04–0.26 the lettering rises to its place as 0.14 the
-  // definition and 0.2 the prompt arrive beneath it, the prompt read word by
-  // word to 0.5 · 0.56 the deadline, its day ringed by 0.76 · 0.8 the invitation
+  // The sheet opens on the lettering alone, in the very middle. A short
+  // scroll and it rises as the definition and the prompt arrive beneath it;
+  // a few more read the prompt word by word; another, and they leave, the
+  // lettering steps back to a running head under the masthead, and the call
+  // takes the middle of the page, its day ringed. Each turn plays through by
+  // itself once reached, rather than only as far as you scroll, so it takes
+  // short scrolls to see, not a long one. Scrolling back turns back.
+  const [stage, setStage] = useState<Stage>('title');
+  useMotionValueEvent(p, 'change', (v) => setStage(stageAt(v)));
+
   const sheetRef = useRef<HTMLDivElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLImageElement>(null);
-  // How far the lettering's resting place is above the middle of the sheet
-  const lift = useMotionValue(0);
-  const titleY = useTransform([p, lift], ([v, l]: number[]) => l * (1 - smooth(Math.min(Math.max((v - 0.04) / 0.22, 0), 1))));
-  // Measured after titleY is set up, so its listener (a layout effect too)
-  // is already in place to hear the first measurement
+  const titleY = useMotionValue(0);
+  const titleScale = useMotionValue(1);
+  // Where the lettering opens (how far its resting place is above the middle
+  // of the sheet), where the running head is and how small it is set
+  const place = useRef({ middle: 0, head: 0, headScale: 0.5 });
+  const titleAt = (s: Stage) =>
+    s === 'title' ? { y: place.current.middle, scale: 1 } : s === 'theme' ? { y: 0, scale: 1 } : { y: place.current.head, scale: place.current.headScale };
+  // Where the running head ends, so the call is centred in the room below it
+  const headEnd = useMotionValue(0);
+  const stageNow = useRef(stage);
   useLayoutEffect(() => {
     const sheet = sheetRef.current;
+    const zone = zoneRef.current;
     const title = titleRef.current;
-    if (!sheet || !title) return;
+    if (!sheet || !zone || !title) return;
     const measure = () => {
       // offsetTop ignores transforms, so this is where the lettering rests
       let top = 0;
       for (let el: HTMLElement | null = title; el && el !== sheet; el = el.offsetParent as HTMLElement | null) {
         top += el.offsetTop;
       }
-      lift.set(sheet.clientHeight / 2 - (top + title.offsetHeight / 2));
+      // At the `sm` breakpoint, where the lettering stops running full width
+      const headScale = window.matchMedia('(min-width: 640px)').matches ? 0.48 : 0.6;
+      const gap = sheet.clientHeight * 0.035;
+      place.current = { middle: sheet.clientHeight / 2 - (top + title.offsetHeight / 2), head: zone.offsetTop + gap - top, headScale };
+      headEnd.set(gap + title.offsetHeight * headScale);
+      // Keep the lettering where the page has it, unless it is on its way
+      if (titleY.isAnimating()) return;
+      const at = titleAt(stageNow.current);
+      titleY.set(at.y);
+      titleScale.set(at.scale);
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(sheet);
     observer.observe(title);
     return () => observer.disconnect();
-  }, [lift]);
-  const figureY = useTransform(p, [0.05, 0.4], ['70%', '0%']);
-  const hint = useTransform(p, [0, 0.04], [1, 0]);
-  const words = call.prompt?.split(' ') ?? [];
-  const step = 0.28 / Math.max(words.length, 1);
-  const draw = useTransform(p, [0.58, 0.76], [0, 1]);
+  }, [titleY, titleScale, headEnd]);
 
-  // Keep the button out of the tab order until it has arrived
-  const [actionsShown, setActionsShown] = useState(false);
-  useMotionValueEvent(p, 'change', (v) => setActionsShown(v > 0.82));
+  // Turn the page: move the lettering, and draw or clear the ring
+  const draw = useMotionValue(0);
+  useEffect(() => {
+    if (stage === stageNow.current) return;
+    stageNow.current = stage;
+    const at = titleAt(stage);
+    const move = { duration: 1, ease: EASE_OUT };
+    const runs = [
+      animate(titleY, at.y, move),
+      animate(titleScale, at.scale, move),
+      stage === 'call' ? animate(draw, 1, { delay: 0.55, duration: 1.2, ease: EASE_OUT }) : animate(draw, 0, { duration: 0.2 }),
+    ];
+    return () => runs.forEach((run) => run.stop());
+  }, [stage, titleY, titleScale, draw]);
+
+  const words = call.prompt?.split(' ') ?? [];
+  const step = (READ_TO - READ_FROM) / Math.max(words.length, 1);
 
   return (
-    // A shorter run on phones, where every screen of scrolling is a thumb swipe
-    <div ref={ref} className="relative h-[270vh] sm:h-[320vh]">
+    // Long enough to hold each page a while; the turns are near the top
+    <div ref={ref} className="relative h-[260vh]">
       <div className="sticky top-16 h-[calc(100svh-4rem)] p-2 sm:p-4">
-        <div
+        <motion.div
           ref={sheetRef}
+          initial="title"
+          animate={stage}
           className="relative flex h-full w-full flex-col items-center overflow-hidden rounded-sm shadow-page px-5 pt-[5svh] pb-[4svh] text-center text-white sm:px-8 sm:pt-[6svh] sm:pb-[5svh]"
           style={{ background: hero.background }}
         >
           <div aria-hidden="true" className="sky-drift"><span /></div>
           {hero.figure && (
             <motion.img
-              style={{ y: figureY }}
+              variants={{ title: { y: '70%' }, theme: { y: '0%', transition: { duration: 1.2, ease: EASE_OUT } } }}
               src={getAssetPath(hero.figure)}
               alt=""
               className="absolute right-0 bottom-0 h-[40%] sm:h-[52%] xl:h-[62%] w-auto pointer-events-none select-none"
@@ -135,64 +193,77 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
 
           <Masthead call={call} onSky className="relative" />
 
-          {/* The lettering, its definition and the prompt, centred between
-              masthead and foot */}
-          <div className="relative flex w-full min-h-0 flex-1 flex-col items-center justify-center py-[2svh]">
+          {/* Two pages: the lettering with what the theme asks, then, once
+              that has gone, the call, under the lettering set small */}
+          <div ref={zoneRef} className="relative flex w-full min-h-0 flex-1 flex-col items-center justify-center pb-[4svh]">
             <motion.img
               ref={titleRef}
-              style={{ y: titleY }}
+              style={{ y: titleY, scale: titleScale, transformOrigin: '50% 0%' }}
               src={getAssetPath(hero.title)}
               alt={call.theme}
               className="w-full sm:w-[68%] max-w-5xl"
             />
-            <div className="flex flex-col items-center">
+            <motion.div variants={themePage} className="flex flex-col items-center">
               {call.definition && (
-                <ScrollReveal progress={p} at={0.14}>
-                  <p className="mt-3 sm:mt-5 max-w-[19rem] sm:max-w-none text-balance italic text-[15px] leading-snug sm:font-light sm:text-[clamp(1rem,1.4vw,1.4rem)] text-white/85">
-                    {call.definition}
-                  </p>
-                </ScrollReveal>
+                <motion.p
+                  variants={themeLine}
+                  className="mt-3 sm:mt-5 max-w-[19rem] sm:max-w-none text-balance italic text-[15px] leading-snug sm:font-light sm:text-[clamp(1rem,1.4vw,1.4rem)] text-white/85"
+                >
+                  {call.definition}
+                </motion.p>
               )}
               {words.length > 0 && (
-                <ScrollReveal progress={p} at={0.2}>
-                  <p className="mt-[4svh] sm:mt-[5svh] max-w-[20rem] sm:max-w-[40rem] text-balance text-[clamp(1.4rem,3.9svh,1.9rem)] leading-[1.18] sm:text-[clamp(1.6rem,2.4vw,2.6rem)] sm:leading-tight font-semibold tracking-tight">
-                    {words.map((word, i) => (
-                      <Fragment key={i}>
-                        <ReadWord progress={p} at={0.22 + i * step}>
-                          {i === 0 ? '“' : ''}{word}{i === words.length - 1 ? '”' : ''}
-                        </ReadWord>{' '}
-                      </Fragment>
-                    ))}
-                  </p>
-                </ScrollReveal>
+                <motion.p
+                  variants={themeLine}
+                  className="mt-[4svh] sm:mt-[5svh] max-w-[20rem] sm:max-w-[44rem] text-balance text-[clamp(1.4rem,3.9svh,1.9rem)] leading-[1.18] sm:text-[clamp(1.75rem,2.7vw,2.9rem)] sm:leading-tight font-semibold tracking-tight"
+                >
+                  {words.map((word, i) => (
+                    <Fragment key={i}>
+                      <ReadWord progress={p} from={READ_FROM + i * step} span={Math.max(step, 0.03)}>
+                        {i === 0 ? '“' : ''}{word}{i === words.length - 1 ? '”' : ''}
+                      </ReadWord>{' '}
+                    </Fragment>
+                  ))}
+                </motion.p>
               )}
-            </div>
-          </div>
+            </motion.div>
 
-          {/* The foot, on one centred axis: open now, until when, the way in */}
-          <div className="relative flex w-full flex-col items-center gap-[2.5svh] sm:gap-7">
-            <ScrollReveal progress={p} at={0.56}>
-              <div className="flex flex-col items-center gap-[2svh] sm:gap-5">
+            {/* The call, on one centred axis in the room under the running
+                head: open now, until when, the way in. Spaced by the screen's
+                height too, so it fits a phone on its side; should it still not
+                fit, it runs off the foot rather than over the head */}
+            <motion.div
+              style={{ top: headEnd }}
+              className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center justify-center [justify-content:safe_center] gap-[5svh] sm:gap-[min(3rem,6svh)] pb-[4svh] lg:pb-[calc(4svh_+_min(5rem,8svh)_-_min(2rem,4svh))]"
+            >
+              {/* On desktop "open" stands further above the deadline, up into
+                  the room under the head; the extra space at the foot keeps
+                  the deadline and the button where they were */}
+              <motion.div variants={callOpen} className="flex flex-col items-center gap-[3svh] sm:gap-[min(2rem,4svh)] lg:gap-[min(5rem,8svh)]">
                 <OpenNow onSky />
-                <Deadline call={call} draw={draw} />
-              </div>
-            </ScrollReveal>
-            <div inert={!actionsShown}>
-              <ScrollReveal progress={p} at={0.8}>
+                <Deadline call={call} draw={draw} large />
+              </motion.div>
+              {/* Out of the tab order until it has arrived */}
+              <motion.div variants={callAction} inert={stage !== 'call'} className="pointer-events-auto">
                 <GuidelinesButton onSky />
-              </ScrollReveal>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
 
-          {/* A line drawing itself downward: there is more below */}
-          <motion.div style={{ opacity: hint }} aria-hidden="true" className="absolute bottom-5 left-1/2 h-12 w-px overflow-hidden">
-            <motion.span
-              className="block h-full w-full bg-white/60 origin-top"
-              animate={{ scaleY: [0, 1, 1], opacity: [1, 1, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            />
+          {/* A line drawing itself downward, there is more below: under the
+              lettering alone, and again once the prompt has arrived */}
+          <motion.div
+            variants={{
+              title: { opacity: 1, transition: { delay: 0.6, duration: 0.6 } },
+              theme: { opacity: [0, 0, 1], transition: { duration: 1.8, times: [0, 0.67, 1] } },
+              call: { opacity: 0, transition: { duration: 0.2 } },
+            }}
+            aria-hidden="true"
+            className="absolute bottom-5 left-1/2 h-12 w-px overflow-hidden"
+          >
+            <span className="block h-full w-full bg-white/60 origin-top animate-hint-draw" />
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -293,16 +364,17 @@ const Masthead = ({ call, onSky = false, className = '' }: { call: OpenCall; onS
   </p>
 );
 
-// That the call is open now: an outlined capsule with a pulsing dot, heading
-// the foot of the cover above the deadline
+// That the call is open now: the words, after a small light that is on, its
+// glow slowly breathing, as a lit window says someone is in
 const OpenNow = ({ onSky = false }: { onSky?: boolean }) => (
   <p
-    className={`inline-flex items-center gap-2.5 sm:gap-3 rounded-full px-4 py-1.5 sm:px-6 sm:py-2.5 text-[11px] sm:text-sm font-medium uppercase tracking-[0.18em] ring-1 ring-inset ${
-      onSky ? 'bg-white/10 text-white ring-white/45 backdrop-blur-sm' : 'bg-accent/5 text-accent ring-accent/30'
+    className={`inline-flex items-center gap-3 sm:gap-3.5 lg:gap-4 text-[17px] sm:text-xl lg:text-[1.75rem] font-medium tracking-tight ${
+      onSky ? 'text-white' : 'text-accent'
     }`}
   >
-    <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5" aria-hidden="true">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-60 animate-ping motion-reduce:animate-none" />
+    <span className="relative flex h-2.5 w-2.5 lg:h-3.5 lg:w-3.5" aria-hidden="true">
+      {/* A CSS loop, so it runs off the main thread */}
+      <span className="absolute -inset-1.5 rounded-full bg-current opacity-50 blur-[5px] animate-breathe motion-reduce:animate-none" />
       <span className="relative inline-flex h-full w-full rounded-full bg-current" />
     </span>
     Submissions open
@@ -317,8 +389,9 @@ const RING_PATH = 'M 94 16 C 72 2, 22 4, 9 30 C -3 55, 30 77, 64 75 C 99 73, 118
 // drawn the pen goes round the day. Pinned layouts drive the drawing with
 // `draw` (0–1); elsewhere it draws once in view. The pen runs through the
 // colours of the theme's lettering; text takes its colour from the surface.
-const Deadline = ({ call, draw }: { call: OpenCall; draw?: MotionValue<number> }) => {
-  const { deadline } = callDetails(call);
+// `large` sets it as the headline of a page of its own.
+const Deadline = ({ call, draw, large = false }: { call: OpenCall; draw?: MotionValue<number>; large?: boolean }) => {
+  const deadline = formatDeadline(call.deadline);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '0px 0px -60px 0px' });
   const reduceMotion = useReducedMotion();
@@ -340,11 +413,20 @@ const Deadline = ({ call, draw }: { call: OpenCall; draw?: MotionValue<number> }
   return (
     // On wider screens one phrase, "Deadline" in a light weight at the date's
     // size; on phones, where that doesn't fit, a small label over the date
-    <div ref={ref} className="flex flex-col sm:flex-row items-center sm:items-baseline justify-center gap-y-[1svh] gap-x-[0.5em] sm:text-4xl lg:text-5xl">
+    <div
+      ref={ref}
+      className={`flex flex-col sm:flex-row items-center sm:items-baseline justify-center gap-y-[1svh] gap-x-[0.5em] ${
+        large ? 'sm:text-[min(3rem,11svh)] lg:text-[min(3.75rem,11svh)] xl:text-[min(4.5rem,11svh)]' : 'sm:text-4xl lg:text-5xl'
+      }`}
+    >
       <p className="text-[11px] uppercase tracking-[0.25em] opacity-80 sm:text-[1em] sm:normal-case sm:tracking-tight sm:font-light sm:leading-none sm:opacity-75">
         Deadline
       </p>
-      <p className="whitespace-nowrap text-[clamp(1.5rem,4.4svh,2.1rem)] sm:text-[1em] font-semibold tracking-tight leading-none">
+      <p
+        className={`whitespace-nowrap sm:text-[1em] font-semibold tracking-tight leading-none ${
+          large ? 'text-[clamp(1.75rem,10vw,2.6rem)]' : 'text-[clamp(1.5rem,4.4svh,2.1rem)]'
+        }`}
+      >
         {/* Room after the day so the ring clears the month */}
         <span className="relative inline-block px-[0.14em] mr-[0.14em]">
           {day}
@@ -385,7 +467,7 @@ const Deadline = ({ call, draw }: { call: OpenCall; draw?: MotionValue<number> }
 const GuidelinesButton = ({ onSky = false }: { onSky?: boolean }) => (
   <Link
     to="/submission"
-    className={`group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 text-[15px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 ${
+    className={`group inline-flex items-center gap-4 sm:gap-5 rounded-full py-2 pl-7 pr-2 sm:pl-8 lg:py-2.5 lg:pl-9 lg:pr-2.5 text-[15px] sm:text-base lg:text-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 ${
       onSky
         ? 'bg-white text-[#1c1816] hover:bg-white/90 focus-visible:ring-white focus-visible:ring-offset-transparent'
         : 'bg-accent text-paper hover:bg-ink focus-visible:ring-accent focus-visible:ring-offset-desk'
@@ -393,7 +475,7 @@ const GuidelinesButton = ({ onSky = false }: { onSky?: boolean }) => (
   >
     Read the guidelines
     <span
-      className={`flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-1 ${
+      className={`flex h-10 w-10 sm:h-11 sm:w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-1 ${
         onSky ? 'bg-[#1c1816] text-white' : 'bg-paper text-accent'
       }`}
     >
@@ -423,15 +505,9 @@ const Poster = ({ call, className }: { call: OpenCall; className: string }) => {
   );
 };
 
-// Fades and lifts its children in as the scroll passes `at` (0–1 of the section)
-const ScrollReveal = ({ progress, at, children }: { progress: MotionValue<number>; at: number; children: ReactNode }) => {
-  const opacity = useTransform(progress, [at, at + 0.06], [0, 1]);
-  const y = useTransform(progress, [at, at + 0.06], [16, 0]);
-  return <motion.div style={{ opacity, y }}>{children}</motion.div>;
-};
-
-// One word of the prompt, going from faint to full as it is "read"
-const ReadWord = ({ progress, at, children }: { progress: MotionValue<number>; at: number; children: ReactNode }) => {
-  const opacity = useTransform(progress, [at, at + 0.04], [0.3, 1]);
+// One word of the prompt, going from faint to full as it is "read": over
+// `span` of the scroll from `from`
+const ReadWord = ({ progress, from, span, children }: { progress: MotionValue<number>; from: number; span: number; children: ReactNode }) => {
+  const opacity = useTransform(progress, [from, from + span], [0.3, 1]);
   return <motion.span style={{ opacity }}>{children}</motion.span>;
 };
