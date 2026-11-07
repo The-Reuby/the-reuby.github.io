@@ -2,6 +2,7 @@
   {
   "slug": "reuby4",
   "name": "The Reuby Issue 4",
+  "theme": "Soup of Story",
   "date": "2026-06-22",
   "oxfordTerm": "TT26",
   "folder": "/magazines/reuby4/",
@@ -13,6 +14,7 @@
   {
   "slug": "reuby3",
   "name": "The Reuby Issue 3",
+  "theme": "instinction",
   "date": "2025-06-19",
   "oxfordTerm": "TT25",
   "folder": "/magazines/reuby3/",
@@ -24,6 +26,7 @@
   {
     "slug": "reubyte",
     "name": "Reubyte",
+  "theme": "Metamorphosis",
     "date": "2024-06-15",
     "oxfordTerm": "TT24",
     "folder": "/magazines/reubyte/",
@@ -35,6 +38,7 @@
   {
     "slug": "reuby2",
     "name": "The Reuby Issue 2",
+  "theme": "pluriverse",
     "date": "2023-11-29",
     "oxfordTerm": "MT23",
     "folder": "/magazines/reuby2/",
@@ -46,6 +50,7 @@
   {
     "slug": "reuby1",
     "name": "The Reuby Issue 1",
+  "theme": "beginnings",
     "date": "2022-08-12",
     "oxfordTerm": "TT22",
     "folder": "/magazines/reuby1/",

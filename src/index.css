@@ -6,6 +6,14 @@
   body {
     @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-50 min-h-screen;
   }
+
+  /* No visible scrollbars anywhere on the site; scrolling itself is unchanged */
+  * {
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {
@@ -29,6 +37,23 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* Magazine redesign tokens (see tailwind.config.js). Desk = the surface the
+   pages lie on, paper = the pages themselves, as in the reader. */
+:root {
+  --desk: 239 235 228;
+  --paper: 251 249 245;
+  --ink: 28 24 22;
+  --muted: 110 102 95;
+  --accent: 140 33 48;
+}
+.dark {
+  --desk: 18 16 15;
+  --paper: 28 25 23;
+  --ink: 236 231 224;
+  --muted: 160 151 142;
+  --accent: 224 112 122;
 }
 
 :root {

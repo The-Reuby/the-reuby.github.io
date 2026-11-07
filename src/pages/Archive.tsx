@@ -1,64 +1,62 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Issue } from '../types';
 import { IssueCard } from '../components/IssueCard';
 import { EmptyState } from '../components/EmptyState';
 import { getAssetPath } from '../utils/pathUtils';
 import { motion } from 'framer-motion';
-import { reveal, revealGroup, revealItem } from '../utils/motion';
+import { revealGroup, revealItem } from '../utils/motion';
 
+// Every issue at a glance: the current issues (newest first) followed by any
+// older ones kept only in the archive.
 export const Archive = () => {
-  const [archivedIssues, setArchivedIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
 
-  // Fetch archived issues
   useEffect(() => {
-    const fetchArchivedIssues = async () => {
+    const fetchIssues = async () => {
       try {
         setLoading(true);
         // Add cache-busting parameter to prevent caching
         const timestamp = new Date().getTime();
-        const response = await fetch(getAssetPath(`/data/archived-issues.json?t=${timestamp}`));
-        if (!response.ok) {
-          throw new Error('Failed to fetch archived issues');
+        const [current, archived] = await Promise.all([
+          fetch(getAssetPath(`/data/issues.json?t=${timestamp}`)),
+          fetch(getAssetPath(`/data/archived-issues.json?t=${timestamp}`)),
+        ]);
+        if (!current.ok || !archived.ok) {
+          throw new Error('Failed to fetch issues');
         }
-        const data = await response.json();
-        setArchivedIssues(data);
+        setIssues([...(await current.json()), ...(await archived.json())]);
       } catch (err) {
-        setError('Failed to load archived issues. Please try again later.');
+        setError('Failed to load issues. Please try again later.');
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArchivedIssues();
+    fetchIssues();
   }, []);
 
   // Filter issues based on search query
   const filteredIssues = useMemo(() => {
-    if (!searchQuery) return archivedIssues;
+    if (!searchQuery) return issues;
     const query = searchQuery.toLowerCase();
-    return archivedIssues.filter(issue => 
-      issue.name.toLowerCase().includes(query) || 
+    return issues.filter(issue =>
+      issue.name.toLowerCase().includes(query) ||
+      issue.theme?.toLowerCase().includes(query) ||
       issue.editors.some(editor => editor.toLowerCase().includes(query))
     );
-  }, [archivedIssues, searchQuery]);
-
-  const handleIssueClick = (issue: Issue) => {
-    // Navigate to the reader page with the selected issue
-    navigate(`/reader?issue=${issue.slug}`);
-  };
+  }, [issues, searchQuery]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] py-16">
+      // Fill the screen so the footer doesn't flash up and then jump down
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] py-16 bg-desk">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-lg font-medium text-slate-700 dark:text-slate-200">Loading archived issues...</div>
+          <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-sm uppercase tracking-[0.2em] text-muted">Loading issues...</div>
         </div>
       </div>
     );
@@ -81,53 +79,41 @@ export const Archive = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12">
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="mb-12 text-center">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-primary-700 dark:text-primary-300 mb-4">Archived Issues</h1>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Browse through past issues of Reuby Magazine
-          </p>
-          <div className="mt-8 h-1 w-24 bg-primary-500 mx-auto rounded-full"></div>
-        </header>
-
-        <motion.div className="mb-10" {...reveal}>
-          <div className="relative w-full max-w-md mx-auto">
+    <div className="min-h-[calc(100vh-4rem)] bg-desk text-ink">
+      <section className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-24">
+        <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 border-b border-ink/15 pb-4">
+          <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight leading-none">All Issues</h1>
+          <label className="relative w-full sm:w-64">
+            <span className="sr-only">Search issues...</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <input
               type="text"
-              placeholder="Search archived issues..."
+              placeholder="Search issues..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pl-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full bg-transparent border-0 border-b border-ink/20 pl-6 py-2 text-[15px] text-ink placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
             />
-            <div className="absolute left-3 top-3.5">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
-        </motion.div>
+          </label>
+        </header>
 
         {filteredIssues.length > 0 ? (
-          // Cards cascade in, one after another, as the grid scrolls into view
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" {...revealGroup}>
+          // Covers cascade in, one after another, as the grid scrolls into view
+          <motion.div
+            className="mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-5 sm:gap-x-8 gap-y-12"
+            {...revealGroup}
+          >
             {filteredIssues.map((issue) => (
               <motion.div key={issue.slug} variants={revealItem}>
-                <IssueCard
-                  issue={issue}
-                  onClick={handleIssueClick}
-                  isLatest={false}
-                />
+                <IssueCard issue={issue} isLatest={issue.slug === issues[0]?.slug} />
               </motion.div>
             ))}
           </motion.div>
         ) : (
           <div className="py-10">
-            <EmptyState 
-              message={searchQuery 
-                ? `No archived issues found matching "${searchQuery}".` 
-                : "No archived issues available yet."
-              }
+            <EmptyState
+              message={`No issues found${searchQuery ? ` matching "${searchQuery}"` : ''}.`}
               action={searchQuery ? {
                 label: "Clear Search",
                 onClick: () => {
@@ -137,7 +123,7 @@ export const Archive = () => {
             />
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
-}; 
+};

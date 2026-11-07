@@ -1,6 +1,8 @@
 export interface Issue {
   slug: string;
   name: string;
+  /** Theme printed on the cover, e.g. "Soup of Story" (kept in the cover's own casing). */
+  theme?: string;
   date: string;
   oxfordTerm: string;
   folder: string;
