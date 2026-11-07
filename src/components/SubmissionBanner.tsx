@@ -169,13 +169,17 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
             </div>
           </div>
 
+          {/* The foot, on one centred axis: open now, until when, the way in */}
           <div className="relative flex w-full flex-col items-center gap-[2.5svh] sm:gap-7">
             <ScrollReveal progress={p} at={0.56}>
-              <Deadline call={call} draw={draw} />
+              <div className="flex flex-col items-center gap-[2svh] sm:gap-5">
+                <OpenNow onSky />
+                <Deadline call={call} draw={draw} />
+              </div>
             </ScrollReveal>
             <div inert={!actionsShown}>
               <ScrollReveal progress={p} at={0.8}>
-                <CallActions onSky />
+                <GuidelinesButton onSky />
               </ScrollReveal>
             </div>
           </div>
@@ -228,11 +232,12 @@ const StackedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => (
             “{call.prompt}”
           </motion.p>
         )}
-        <motion.div variants={revealItem} className="mt-16">
+        <motion.div variants={revealItem} className="mt-16 flex flex-col items-center gap-5">
+          <OpenNow onSky />
           <Deadline call={call} />
         </motion.div>
         <motion.div variants={revealItem} className="mt-7">
-          <CallActions onSky />
+          <GuidelinesButton onSky />
         </motion.div>
       </div>
     </motion.div>
@@ -262,11 +267,12 @@ const PosterHero = ({ call }: { call: OpenCall }) => (
         “{call.prompt}”
       </motion.p>
     )}
-    <motion.div variants={revealItem} className="mt-12">
+    <motion.div variants={revealItem} className="mt-12 flex flex-col items-center gap-5">
+      <OpenNow />
       <Deadline call={call} />
     </motion.div>
     <motion.div variants={revealItem} className="mt-7">
-      <CallActions />
+      <GuidelinesButton />
     </motion.div>
   </motion.section>
 );
@@ -287,32 +293,27 @@ const Masthead = ({ call, onSky = false, className = '' }: { call: OpenCall; onS
   </p>
 );
 
-// The foot of the cover: that the call is open now (the pulsing dot), right
-// beside the way in. Side by side on wider screens, stacked on phones.
-const CallActions = ({ onSky = false }: { onSky?: boolean }) => (
-  <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-    {/* On wider screens an outlined capsule the height of the button, so the
-        two read as a pair */}
-    <p
-      className={`inline-flex items-center gap-2.5 sm:gap-3 text-[12px] sm:h-14 sm:rounded-full sm:px-7 sm:text-[15px] font-medium uppercase tracking-[0.18em] sm:tracking-[0.16em] sm:ring-1 sm:ring-inset ${
-        onSky ? 'text-white sm:bg-white/10 sm:ring-white/45 sm:backdrop-blur-sm' : 'text-accent sm:bg-accent/5 sm:ring-accent/30'
-      }`}
-    >
-      <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5" aria-hidden="true">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-60 animate-ping motion-reduce:animate-none" />
-        <span className="relative inline-flex h-full w-full rounded-full bg-current" />
-      </span>
-      Submissions open
-    </p>
-    <GuidelinesButton onSky={onSky} />
-  </div>
+// That the call is open now: an outlined capsule with a pulsing dot, heading
+// the foot of the cover above the deadline
+const OpenNow = ({ onSky = false }: { onSky?: boolean }) => (
+  <p
+    className={`inline-flex items-center gap-2.5 sm:gap-3 rounded-full px-4 py-1.5 sm:px-6 sm:py-2.5 text-[11px] sm:text-sm font-medium uppercase tracking-[0.18em] ring-1 ring-inset ${
+      onSky ? 'bg-white/10 text-white ring-white/45 backdrop-blur-sm' : 'bg-accent/5 text-accent ring-accent/30'
+    }`}
+  >
+    <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5" aria-hidden="true">
+      <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-60 animate-ping motion-reduce:animate-none" />
+      <span className="relative inline-flex h-full w-full rounded-full bg-current" />
+    </span>
+    Submissions open
+  </p>
 );
 
 // A loop of pen drawn round a date, as you would ring a day on a calendar:
 // slightly uneven, and running on past where it began
 const RING_PATH = 'M 94 16 C 72 2, 22 4, 9 30 C -3 55, 30 77, 64 75 C 99 73, 118 52, 109 29 C 102 12, 78 6, 56 9';
 
-// The deadline on one line (stacked on phones), its day ringed in pen. As it is
+// The deadline (on one line on wider screens), its day ringed in pen. As it is
 // drawn the pen goes round the day. Pinned layouts drive the drawing with
 // `draw` (0–1); elsewhere it draws once in view. The pen runs through the
 // colours of the theme's lettering; text takes its colour from the surface.
@@ -337,9 +338,13 @@ const Deadline = ({ call, draw }: { call: OpenCall; draw?: MotionValue<number> }
   const [day, ...monthYear] = deadline.split(' ');
 
   return (
-    <div ref={ref} className="flex flex-col sm:flex-row items-center justify-center gap-y-[1svh] gap-x-7">
-      <p className="text-[11px] sm:text-sm uppercase tracking-[0.25em] opacity-80">Deadline</p>
-      <p className="whitespace-nowrap text-[clamp(1.5rem,4.4svh,2.1rem)] sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-none">
+    // On wider screens one phrase, "Deadline" in a light weight at the date's
+    // size; on phones, where that doesn't fit, a small label over the date
+    <div ref={ref} className="flex flex-col sm:flex-row items-center sm:items-baseline justify-center gap-y-[1svh] gap-x-[0.5em] sm:text-4xl lg:text-5xl">
+      <p className="text-[11px] uppercase tracking-[0.25em] opacity-80 sm:text-[1em] sm:normal-case sm:tracking-tight sm:font-light sm:leading-none sm:opacity-75">
+        Deadline
+      </p>
+      <p className="whitespace-nowrap text-[clamp(1.5rem,4.4svh,2.1rem)] sm:text-[1em] font-semibold tracking-tight leading-none">
         {/* Room after the day so the ring clears the month */}
         <span className="relative inline-block px-[0.14em] mr-[0.14em]">
           {day}
