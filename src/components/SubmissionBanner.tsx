@@ -110,12 +110,11 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
           )}
 
           <div className="relative flex w-full flex-col items-center">
-            <motion.img
-              style={{ y: titleY, scale: titleScale }}
-              src={getAssetPath(hero.title)}
-              alt={call.theme}
-              className="w-[88%] sm:w-[68%] max-w-5xl"
-            />
+            {/* What the sheet is travels with the lettering, from the first frame */}
+            <motion.div style={{ y: titleY, scale: titleScale }} className="flex w-full flex-col items-center">
+              <CallEyebrow call={call} className="mb-5 sm:mb-8 text-white/90" />
+              <img src={getAssetPath(hero.title)} alt={call.theme} className="w-[88%] sm:w-[68%] max-w-5xl" />
+            </motion.div>
             {call.definition && (
               <ScrollReveal progress={p} at={0.32}>
                 <p className="mt-4 sm:mt-5 max-w-md sm:max-w-none italic font-light text-[clamp(1rem,1.4vw,1.4rem)] text-white/85">
@@ -187,6 +186,9 @@ const StackedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => (
       )}
       {/* Above the figure, whose glow may reach up behind the button */}
       <div className="relative">
+        <motion.div variants={revealItem}>
+          <CallEyebrow call={call} className="mb-4 text-white/85" />
+        </motion.div>
         <motion.img variants={revealItem} src={getAssetPath(hero.title)} alt={call.theme} className="mx-auto w-full max-w-2xl" />
         {call.definition && (
           <motion.p variants={revealItem} className="mx-auto mt-4 max-w-md italic font-light text-lg text-white/85">
@@ -213,9 +215,9 @@ const StackedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => (
 // of the theme set large, on one centred axis.
 const PosterHero = ({ call }: { call: OpenCall }) => (
   <motion.section className="overflow-hidden px-5 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-16 pb-4 text-center text-ink" {...revealGroup}>
-    <motion.p variants={revealItem} className="text-[12px] uppercase tracking-[0.25em] text-muted">
-      The Reuby · {call.issue ?? call.title}
-    </motion.p>
+    <motion.div variants={revealItem}>
+      <CallEyebrow call={call} className="text-muted" />
+    </motion.div>
     <motion.h2
       variants={revealItem}
       className="mt-3 whitespace-nowrap text-[clamp(2.5rem,14vw,12rem)] font-semibold tracking-tighter leading-none"
@@ -239,6 +241,18 @@ const PosterHero = ({ call }: { call: OpenCall }) => (
       <SubmitButton />
     </motion.div>
   </motion.section>
+);
+
+// Says what the call is: open now (the pulsing dot), and for which issue.
+// Takes its colour from the surface it sits on.
+const CallEyebrow = ({ call, className = '' }: { call: OpenCall; className?: string }) => (
+  <p className={`inline-flex items-center gap-3 sm:gap-4 text-sm sm:text-base lg:text-lg font-medium uppercase tracking-[0.22em] ${className}`}>
+    <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3" aria-hidden="true">
+      <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-60 animate-ping motion-reduce:animate-none" />
+      <span className="relative inline-flex h-full w-full rounded-full bg-current" />
+    </span>
+    Submissions open · {call.issue ?? call.title}
+  </p>
 );
 
 // The days between now and the deadline, drawn as a ruler: a tick for each
