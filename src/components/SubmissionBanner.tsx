@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   animate,
@@ -100,6 +100,7 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
           className="relative flex h-full w-full flex-col items-center overflow-hidden rounded-sm shadow-page px-6 pt-[8svh] pb-[5svh] text-center text-white sm:px-8"
           style={{ background: hero.background }}
         >
+          <div aria-hidden="true" className="sky-drift"><span /></div>
           {hero.figure && (
             <motion.img
               style={{ y: figureY }}
@@ -148,7 +149,7 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
             </div>
             <div className="mt-7 sm:mt-8" inert={!actionsShown}>
               <ScrollReveal progress={p} at={0.85}>
-                <SubmitButton onSky />
+                <GuidelinesButton onSky />
               </ScrollReveal>
             </div>
           </div>
@@ -177,6 +178,7 @@ const StackedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => (
       style={{ background: hero.background }}
       {...revealGroup}
     >
+      <div aria-hidden="true" className="sky-drift"><span /></div>
       {hero.figure && (
         <img
           src={getAssetPath(hero.figure)}
@@ -204,7 +206,7 @@ const StackedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => (
           <TimeLeft call={call} />
         </motion.div>
         <motion.div variants={revealItem} className="mt-8">
-          <SubmitButton onSky />
+          <GuidelinesButton onSky />
         </motion.div>
       </div>
     </motion.div>
@@ -238,28 +240,37 @@ const PosterHero = ({ call }: { call: OpenCall }) => (
       <TimeLeft call={call} />
     </motion.div>
     <motion.div variants={revealItem} className="mt-8">
-      <SubmitButton />
+      <GuidelinesButton />
     </motion.div>
   </motion.section>
 );
 
-// Says what the call is: open now (the pulsing dot), and for which issue.
+// Says what the call is: open now (the pulsing dot), and for which issue of
+// the magazine. One line on wider screens; on phones it breaks after "open".
 // Takes its colour from the surface it sits on.
 const CallEyebrow = ({ call, className = '' }: { call: OpenCall; className?: string }) => (
-  <p className={`inline-flex items-center gap-3 sm:gap-4 text-sm sm:text-base lg:text-lg font-medium uppercase tracking-[0.22em] ${className}`}>
-    <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3" aria-hidden="true">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-60 animate-ping motion-reduce:animate-none" />
-      <span className="relative inline-flex h-full w-full rounded-full bg-current" />
+  <p className={`flex flex-col sm:flex-row items-center gap-1.5 sm:gap-0 text-sm sm:text-base lg:text-lg font-medium uppercase tracking-[0.22em] ${className}`}>
+    <span className="inline-flex items-center gap-3 sm:gap-4">
+      <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3" aria-hidden="true">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-60 animate-ping motion-reduce:animate-none" />
+        <span className="relative inline-flex h-full w-full rounded-full bg-current" />
+      </span>
+      Submissions open
     </span>
-    Submissions open · {call.issue ?? call.title}
+    <span className="hidden sm:inline px-[0.6em]" aria-hidden="true">·</span>
+    <span>The Reuby {call.issue ?? call.title}</span>
   </p>
 );
 
-// The days between now and the deadline, drawn as a ruler: a tick for each
-// day, a taller one where each month begins, full height at today and at the
-// deadline. As it is drawn the count runs up to the days left. Pinned layouts
-// drive the drawing with `draw` (0–1); elsewhere it draws once in view.
-// Takes its colour from the surface it sits on.
+// A loop of pen drawn round a date, as you would ring a day on a calendar:
+// slightly uneven, and running on past where it began
+const RING_PATH = 'M 94 16 C 72 2, 22 4, 9 30 C -3 55, 30 77, 64 75 C 99 73, 118 52, 109 29 C 102 12, 78 6, 56 9';
+
+// The deadline, with its day ringed in pen, and the days left beneath. As it
+// is drawn the pen goes round the day and the count runs up to the days left.
+// Pinned layouts drive the drawing with `draw` (0–1); elsewhere it draws once
+// in view. The pen runs through the colours of the theme's lettering; text
+// takes its colour from the surface beneath.
 const TimeLeft = ({ call, draw }: { call: OpenCall; draw?: MotionValue<number> }) => {
   const { days, daysLeft, deadline } = callDetails(call);
   const ref = useRef<HTMLDivElement>(null);
@@ -269,67 +280,70 @@ const TimeLeft = ({ call, draw }: { call: OpenCall; draw?: MotionValue<number> }
   useEffect(() => {
     if (draw) return;
     if (reduceMotion) own.set(1);
-    else if (inView) animate(own, 1, { duration: 1.6, ease: EASE_OUT });
+    else if (inView) animate(own, 1, { duration: 1.8, ease: EASE_OUT });
   }, [draw, inView, reduceMotion, own]);
   const progress = draw ?? own;
   const count = useTransform(progress, (v) => Math.round(v * days));
-  // A couple of pixels of slack keeps the end ticks whole
-  const clip = useTransform(progress, (v) => `inset(-2px calc(${(1 - v) * 100}% - 2px) -2px -2px)`);
 
-  if (days === 0) {
-    return <p className="text-center text-5xl font-semibold tracking-tight">{daysLeft}</p>;
-  }
-
-  const today = new Date();
-  const ticks = Array.from({ length: days + 1 }, (_, i) => {
-    const end = i === 0 || i === days;
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i).getDate() === 1;
-    return { i, height: end ? 10 : monthStart ? 6.5 : 4, opacity: end ? 1 : monthStart ? 0.85 : 0.5 };
-  });
+  const palette = call.hero?.palette ?? [];
+  const gradientId = `pen-${useId()}`;
+  // The pen goes round in the first part of the drawing, the count runs throughout
+  const pen = useTransform(progress, [0, 0.75], [0, 1]);
+  const penShown = useTransform(pen, [0, 0.02], [0, 1]);
+  // "13 March 2027": the day is ringed, the month and year follow
+  const [day, ...monthYear] = deadline.split(' ');
 
   return (
-    <div ref={ref}>
-      <div className="flex items-end justify-between gap-6">
-        <div className="text-left">
-          <p aria-hidden="true" className="text-6xl sm:text-7xl font-semibold tracking-tight leading-none tabular-nums">
-            <motion.span>{count}</motion.span>
-          </p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.2em] opacity-80">
-            <span className="sr-only">{days} </span>day{days === 1 ? '' : 's'} left
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-lg sm:text-2xl font-semibold tracking-tight leading-none">{deadline}</p>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.2em] opacity-80">Deadline</p>
-        </div>
-      </div>
-      <motion.svg
-        style={{ clipPath: clip }}
-        viewBox={`0 0 ${days} 10`}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        className="mt-5 block h-8 w-full overflow-visible"
-      >
-        <line x1={0} x2={days} y1={10} y2={10} stroke="currentColor" strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />
-        {ticks.map((t) => (
-          <line
-            key={t.i}
-            x1={t.i}
-            x2={t.i}
-            y1={10 - t.height}
-            y2={10}
-            stroke="currentColor"
-            strokeOpacity={t.opacity}
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
-      </motion.svg>
+    <div ref={ref} className="flex flex-col items-center text-center">
+      <p className="text-[11px] sm:text-xs uppercase tracking-[0.25em] opacity-80">Deadline</p>
+      <p className="mt-4 whitespace-nowrap text-[2.6rem] sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-none">
+        <span className="relative inline-block px-[0.14em]">
+          {day}
+          <svg
+            viewBox="0 0 120 80"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-x-[0.32em] -inset-y-[0.26em] h-[calc(100%+0.52em)] w-[calc(100%+0.64em)] overflow-visible"
+          >
+            {palette.length > 1 && (
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                  {palette.map((c, i) => (
+                    <stop key={i} offset={i / (palette.length - 1)} stopColor={c} />
+                  ))}
+                </linearGradient>
+              </defs>
+            )}
+            <motion.path
+              d={RING_PATH}
+              fill="none"
+              stroke={palette.length > 1 ? `url(#${gradientId})` : palette[0] ?? 'currentColor'}
+              strokeWidth={3.2}
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ pathLength: pen, opacity: penShown }}
+            />
+          </svg>
+        </span>{' '}
+        {monthYear.join(' ')}
+      </p>
+      <p className="mt-5 text-sm sm:text-base uppercase tracking-[0.2em] opacity-85">
+        {days === 0 ? (
+          daysLeft
+        ) : (
+          <>
+            <motion.span aria-hidden="true" className="font-semibold tabular-nums">{count}</motion.span>
+            <span className="sr-only">{days}</span> day{days === 1 ? '' : 's'} left
+          </>
+        )}
+      </p>
     </div>
   );
 };
 
-// A capsule, with the arrow set in its own disc
-const SubmitButton = ({ onSky = false }: { onSky?: boolean }) => (
+// To the guidelines (the Submission page, which also has the email to send
+// work to): a capsule, with the arrow set in its own disc
+const GuidelinesButton = ({ onSky = false }: { onSky?: boolean }) => (
   <Link
     to="/submission"
     className={`group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 text-[15px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 ${
@@ -338,7 +352,7 @@ const SubmitButton = ({ onSky = false }: { onSky?: boolean }) => (
         : 'bg-accent text-paper hover:bg-ink focus-visible:ring-accent focus-visible:ring-offset-desk'
     }`}
   >
-    Submit your work
+    Read the guidelines
     <span
       className={`flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover:translate-x-1 ${
         onSky ? 'bg-[#1c1816] text-white' : 'bg-paper text-accent'

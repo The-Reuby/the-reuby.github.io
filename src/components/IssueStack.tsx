@@ -17,7 +17,7 @@ import { getCoverPath, getReaderPath } from '../utils/pathUtils';
 // of each issue's turn rests on it before the next is picked up
 const TURN_START = 0.04;
 const TURN_END = 0.94;
-const REST = 0.45;
+const REST = 0.3;
 
 // Issues still on the pile lie a little askew, each a touch down and to the
 // right of the one above, so their edges show
@@ -25,8 +25,9 @@ const PILE_TILT = [-2.5, 2, -1.5, 3];
 const PILE_SHIFT = { x: 2.2, y: 1.6 }; // % of a cover, per issue beneath
 
 // Issues already picked up are laid in an overlapping row to the left of the
-// pile, a little smaller: the most recent nearest the pile
-const LAID_FIRST = -86; // % of a cover's width
+// pile, a little smaller: the most recent nearest the pile, and clear of it,
+// so nothing has to slip under the pile as it lands
+const LAID_FIRST = -98; // % of a cover's width
 const LAID_STEP = 30;
 const LAID_SCALE = 0.8;
 
@@ -58,8 +59,8 @@ const PinnedPile = ({ issues }: { issues: Issue[] }) => {
     const f = x - k;
     return n < 2 ? 0 : k + (f < REST ? 0 : smooth((f - REST) / (1 - REST)));
   });
-  // A little give, so each issue settles rather than stops
-  const turn = useSpring(position, { stiffness: 220, damping: 30, mass: 0.5 });
+  // Some give, so each issue eases into place rather than stops
+  const turn = useSpring(position, { stiffness: 120, damping: 26, mass: 0.7 });
 
   const [top, setTop] = useState(0);
   useMotionValueEvent(turn, 'change', (v) => setTop(Math.min(n - 1, Math.max(0, Math.round(v)))));
@@ -148,15 +149,20 @@ const PinnedPile = ({ issues }: { issues: Issue[] }) => {
 // issues): beneath (d > 0), on top (0), being picked up and laid down
 // (between -1 and 0), or laid beside the pile (-1 and below)
 const placeOf = (d: number, index: number) => {
+  // Stacking: on the pile the newest is on top; the one in your hand is above
+  // everything; in the row the last laid down is on top. The one change of
+  // order, as an issue lands, happens clear of the pile, so it is never seen.
   if (d >= 0) {
+    const zIndex = 100 - index;
     const depth = Math.min(d, 3);
     return {
       x: depth * PILE_SHIFT.x,
       y: depth * PILE_SHIFT.y,
       rotate: PILE_TILT[index % PILE_TILT.length] * Math.min(d, 1),
       scale: 1,
-      zIndex: 100 - Math.round(d * 10),
-      opacity: d > 3.5 ? 0 : 1,
+      zIndex,
+      // The deepest fade in as they come within reach, rather than appear
+      opacity: Math.min(1, Math.max(0, 4 - d)),
     };
   }
   if (d > -1) {
@@ -165,15 +171,15 @@ const placeOf = (d: number, index: number) => {
     const arc = Math.sin(Math.PI * u);
     return {
       x: lerp(0, LAID_FIRST, smooth(u)),
-      y: -arc * 10,
-      rotate: -arc * 5,
-      scale: lerp(1, LAID_SCALE, smooth(u)) + arc * 0.05,
-      zIndex: 110,
+      y: -arc * 8,
+      rotate: -arc * 4,
+      scale: lerp(1, LAID_SCALE, smooth(u)) + arc * 0.04,
+      zIndex: 200,
       opacity: 1,
     };
   }
   const k = -d - 1;
-  return { x: LAID_FIRST - k * LAID_STEP, y: 0, rotate: 0, scale: LAID_SCALE, zIndex: 50 - Math.round(k), opacity: 1 };
+  return { x: LAID_FIRST - k * LAID_STEP, y: 0, rotate: 0, scale: LAID_SCALE, zIndex: 50 + index, opacity: 1 };
 };
 
 const PileCover = ({

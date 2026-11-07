@@ -14,10 +14,11 @@ export type OpenCall = {
   definition?: string;
   /**
    * Pieces cut from the poster for the home page hero: the theme's lettering,
-   * a figure that sits in the bottom-right corner, and a CSS background
-   * sampled from the poster. Without it the hero shows the whole poster.
+   * a figure that sits in the bottom-right corner, a CSS background sampled
+   * from the poster, and colours from the lettering (first to last) that the
+   * days left run through. Without it the hero shows the whole poster.
    */
-  hero?: { title: string; figure?: string; background: string };
+  hero?: { title: string; figure?: string; background: string; palette?: string[] };
 };
 
 // The current call if submissions are still open, otherwise null. Never throws:

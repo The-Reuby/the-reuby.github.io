@@ -18,6 +18,7 @@
     "definition": "the feeling of distress associated with environmental change close to home",
     "hero": {
       "title": "/images/submission/2027/solastalgia-title.webp",
+      "palette": ["#de877e", "#f4e1d6", "#f0cb63", "#e8a625", "#ed8b4f", "#d85a32"],
       "background": "radial-gradient(55% 75% at 100% 100%, rgb(240 168 128 / 0.95), rgb(240 168 128 / 0) 70%), radial-gradient(45% 55% at 100% 0%, rgb(110 100 150 / 0.7), rgb(110 100 150 / 0) 70%), linear-gradient(180deg, #0a4c7d 0%, #24588a 32%, #556892 58%, #7f6f8f 80%, #9c7485 100%)"
     }
   },
