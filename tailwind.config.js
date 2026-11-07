@@ -21,6 +21,31 @@ export default {
           900: '#4c0519',  // darkest wine
           950: '#350512',
         },
+        // Magazine redesign palette. `primary` above stays as-is because the
+        // Voices page and its player still use it.
+        ruby: {
+          50: '#fbf4f4',
+          100: '#f6e4e5',
+          200: '#ecc5c8',
+          300: '#dc9aa0',
+          400: '#c4636b',
+          500: '#a4292e',
+          600: '#8c2130',
+          700: '#771825',
+          800: '#641320',
+          900: '#4c0519',
+          950: '#350512',
+        },
+        // Light/dark values live in index.css, so these need no `dark:` twins
+        desk: 'rgb(var(--desk) / <alpha-value>)',
+        paper: 'rgb(var(--paper) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        accent: 'rgb(var(--accent) / <alpha-value>)',
+      },
+      boxShadow: {
+        // A sheet of paper lying on the desk, as in the reader
+        page: '0 1px 2px rgb(0 0 0 / 0.06), 0 12px 28px -12px rgb(0 0 0 / 0.28)',
       },
       animation: {
         'slide-in': 'slide-in 0.3s ease-out',
