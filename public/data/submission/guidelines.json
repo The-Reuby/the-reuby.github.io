@@ -17,9 +17,13 @@
     ],
     "definition": "the feeling of distress associated with environmental change close to home",
     "hero": {
-      "title": "/images/submission/2027/solastalgia-title.webp",
+      "title": "/images/submission/2027/solastalgia-title-2400.webp",
+      "titleSize": [2400, 293],
+      "figure": "/images/submission/2027/earth-clock-blended-1600.webp",
+      "figureAtmosphere": "/images/submission/2027/earth-atmosphere.webp",
+      "figureSize": [1600, 1519],
       "palette": ["#de877e", "#f4e1d6", "#f0cb63", "#e8a625", "#ed8b4f", "#d85a32"],
-      "background": "radial-gradient(55% 75% at 100% 100%, rgb(240 168 128 / 0.95), rgb(240 168 128 / 0) 70%), radial-gradient(45% 55% at 100% 0%, rgb(110 100 150 / 0.7), rgb(110 100 150 / 0) 70%), linear-gradient(180deg, #0a4c7d 0%, #24588a 32%, #556892 58%, #7f6f8f 80%, #9c7485 100%)"
+      "background": "radial-gradient(65% 85% at 100% 100%, rgb(239 183 153 / 0.82), rgb(239 183 153 / 0) 76%), radial-gradient(60% 65% at 100% 20%, rgb(155 143 185 / 0.32), rgb(155 143 185 / 0) 75%), linear-gradient(180deg, #303f73 0%, #455581 32%, #62648a 58%, #89758f 80%, #b18b98 100%)"
     }
   },
   "archived": [

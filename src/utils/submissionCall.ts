@@ -18,7 +18,15 @@ export type OpenCall = {
    * from the poster, and colours from the lettering (first to last) that the
    * days left run through. Without it the hero shows the whole poster.
    */
-  hero?: { title: string; figure?: string; background: string; palette?: string[] };
+  hero?: {
+    title: string;
+    titleSize?: [width: number, height: number];
+    figure?: string;
+    figureAtmosphere?: string;
+    figureSize?: [width: number, height: number];
+    background: string;
+    palette?: string[];
+  };
 };
 
 // The current call if submissions are still open, otherwise null. Never throws:

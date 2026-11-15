@@ -105,6 +105,18 @@ button {
   .page-main header > * { animation: none; }
 }
 
+/* This padded, pre-blurred watercolor comes from the PDF's cloud layers.
+   It extends beyond the foreground image instead of fading a rectangle. */
+.submission-atmosphere {
+  position: absolute;
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
+  max-width: none;
+  pointer-events: none;
+}
+
 /* The open call's sky, alive: three soft lights in the poster's own sky
    colours (a clearer blue, dusk lavender, a peach horizon) drift and breathe
    across it on loops of different lengths, so the colour never quite repeats
@@ -115,6 +127,9 @@ button {
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  transform-origin: 65% 65%;
+  animation: sky-breathe 6.67s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 .sky-drift::before,
 .sky-drift::after,
@@ -129,24 +144,30 @@ button {
   height: 95%;
   left: -25%;
   top: 15%;
-  background: radial-gradient(closest-side, rgb(150 132 186 / 0.45), rgb(150 132 186 / 0));
-  animation: sky-drift-warm 17s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, rgb(181 157 183 / 0.22), rgb(181 157 183 / 0));
+  animation: sky-drift-warm 11.67s ease-in-out infinite alternate;
 }
 .sky-drift::after {
   width: 85%;
   height: 100%;
   right: -30%;
   top: -35%;
-  background: radial-gradient(closest-side, rgb(78 140 200 / 0.45), rgb(78 140 200 / 0));
-  animation: sky-drift-cool 22s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, rgb(138 154 200 / 0.22), rgb(138 154 200 / 0));
+  animation: sky-drift-cool 15s ease-in-out infinite alternate;
 }
 .sky-drift > span {
   width: 70%;
   height: 70%;
   left: 15%;
   bottom: -45%;
-  background: radial-gradient(closest-side, rgb(240 182 146 / 0.38), rgb(240 182 146 / 0));
-  animation: sky-drift-gold 27s ease-in-out infinite alternate;
+  background: radial-gradient(closest-side, rgb(239 181 155 / 0.3), rgb(239 181 155 / 0));
+  animation: sky-drift-gold 18.33s ease-in-out infinite alternate;
+}
+/* One gentle inhale/exhale underneath the independently drifting colours.
+   Only the background moves; the artwork and lettering stay steady. */
+@keyframes sky-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.04); opacity: 1; }
 }
 @keyframes sky-drift-warm {
   0% { transform: translate(0, 0) scale(1); opacity: 0.55; }
@@ -164,6 +185,7 @@ button {
   100% { transform: translate(40%, -10%) scale(1); opacity: 0.6; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .sky-drift,
   .sky-drift::before,
   .sky-drift::after,
   .sky-drift > span { animation: none; }

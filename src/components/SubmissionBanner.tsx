@@ -62,6 +62,24 @@ export const SubmissionHero = ({ call }: { call: OpenCall }) => {
 
 type Hero = NonNullable<OpenCall['hero']>;
 
+// Extend only the original watercolor into the sky; the foreground clock
+// stays crisp. Both layers travel together through the existing scroll stages.
+const FigureArtwork = ({ hero }: { hero: Hero }) => (
+  <>
+    {hero.figureAtmosphere && (
+      <img src={getAssetPath(hero.figureAtmosphere)} alt="" draggable={false} className="submission-atmosphere" />
+    )}
+    <img
+      src={getAssetPath(hero.figure!)}
+      width={hero.figureSize?.[0]}
+      height={hero.figureSize?.[1]}
+      alt=""
+      draggable={false}
+      className="relative block h-full w-full"
+    />
+  </>
+);
+
 // What the sheet shows: the lettering alone in the very middle, then what the
 // theme asks beneath it, then the call itself
 type Stage = 'title' | 'theme' | 'call';
@@ -183,12 +201,18 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
         >
           <div aria-hidden="true" className="sky-drift"><span /></div>
           {hero.figure && (
-            <motion.img
-              variants={{ title: { y: '70%' }, theme: { y: '0%', transition: { duration: 1.2, ease: EASE_OUT } } }}
-              src={getAssetPath(hero.figure)}
-              alt=""
-              className="absolute right-0 bottom-0 h-[40%] sm:h-[52%] xl:h-[62%] w-auto pointer-events-none select-none"
-            />
+            <motion.div
+              variants={{
+                title: { y: '70%' },
+                theme: { y: '24%', transition: { duration: 1.2, ease: EASE_OUT } },
+                call: { y: '24%' },
+              }}
+              style={{ aspectRatio: hero.figureSize?.join(' / ') ?? '1' }}
+              aria-hidden="true"
+              className="submission-figure absolute right-0 bottom-0 h-[40%] sm:h-[52%] xl:h-[62%] w-auto pointer-events-none select-none"
+            >
+              <FigureArtwork hero={hero} />
+            </motion.div>
           )}
 
           <Masthead call={call} onSky className="relative" />
@@ -200,14 +224,18 @@ const PinnedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => {
               ref={titleRef}
               style={{ y: titleY, scale: titleScale, transformOrigin: '50% 0%' }}
               src={getAssetPath(hero.title)}
+              width={hero.titleSize?.[0]}
+              height={hero.titleSize?.[1]}
               alt={call.theme}
-              className="w-full sm:w-[68%] max-w-5xl"
+              fetchPriority="high"
+              draggable={false}
+              className="w-full h-auto sm:w-[68%] max-w-5xl"
             />
             <motion.div variants={themePage} className="flex flex-col items-center">
               {call.definition && (
                 <motion.p
                   variants={themeLine}
-                  className="mt-3 sm:mt-5 max-w-[19rem] sm:max-w-none text-balance italic text-[15px] leading-snug sm:font-light sm:text-[clamp(1rem,1.4vw,1.4rem)] text-white/85"
+                  className="mt-3 sm:mt-5 max-w-[19rem] sm:max-w-[42rem] text-balance italic text-[15px] leading-snug sm:font-light sm:text-[clamp(1rem,1.4vw,1.4rem)] text-white/85"
                 >
                   {call.definition}
                 </motion.p>
@@ -281,18 +309,29 @@ const StackedSheet = ({ call, hero }: { call: OpenCall; hero: Hero }) => (
     >
       <div aria-hidden="true" className="sky-drift"><span /></div>
       {hero.figure && (
-        <img
-          src={getAssetPath(hero.figure)}
-          alt=""
-          className="absolute right-0 bottom-0 w-[66vw] sm:w-[48vw] max-w-lg pointer-events-none select-none"
-        />
+        <div
+          style={{ aspectRatio: hero.figureSize?.join(' / ') ?? '1' }}
+          aria-hidden="true"
+          className="submission-figure absolute right-0 bottom-0 translate-y-[24%] w-[66vw] sm:w-[48vw] max-w-lg h-auto pointer-events-none select-none"
+        >
+          <FigureArtwork hero={hero} />
+        </div>
       )}
       {/* Above the figure, whose glow may reach up behind the button */}
       <div className="relative">
         <motion.div variants={revealItem}>
           <Masthead call={call} onSky />
         </motion.div>
-        <motion.img variants={revealItem} src={getAssetPath(hero.title)} alt={call.theme} className="mx-auto mt-16 w-full max-w-2xl" />
+        <motion.img
+          variants={revealItem}
+          src={getAssetPath(hero.title)}
+          width={hero.titleSize?.[0]}
+          height={hero.titleSize?.[1]}
+          alt={call.theme}
+          fetchPriority="high"
+          draggable={false}
+          className="mx-auto mt-16 w-full h-auto max-w-2xl"
+        />
         {call.definition && (
           <motion.p variants={revealItem} className="mx-auto mt-4 max-w-md text-balance italic font-light text-lg text-white/85">
             {call.definition}
